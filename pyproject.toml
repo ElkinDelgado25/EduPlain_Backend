@@ -1,0 +1,38 @@
+[project]
+name = "eduplain-backend"
+version = "0.1.0"
+requires-python = ">=3.13.13,<3.14"
+
+[tool.ruff]
+target-version = "py313"
+line-length = 100
+extend-exclude = ["apps/users/migrations"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "DJ"]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings.test"
+python_files = ["test_*.py"]
+addopts = "--strict-markers --cov=apps --cov=config --cov-report=term-missing --cov-report=xml --cov-fail-under=85"
+
+[tool.pytest_env]
+DJANGO_SECRET_KEY = "test-only-key-not-used-outside-pytest"
+POSTGRES_PASSWORD = "test-only-database-password"
+
+[tool.coverage.run]
+branch = true
+omit = [
+  "*/migrations/*",
+  "manage.py",
+  "config/asgi.py",
+  "config/wsgi.py",
+]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+exclude_also = [
+  "if __name__ == .__main__.:",
+  "if TYPE_CHECKING:",
+]
