@@ -33,6 +33,22 @@ Este repositorio prioriza una arquitectura clara y educativa. Todo cambio debe c
 - No versionar `.env`, credenciales reales ni datos personales.
 - Mantener separados los ajustes de desarrollo y producción.
 
+## Flujo de desarrollo local
+
+El flujo recomendado ejecuta Django desde `.venv` y únicamente PostgreSQL dentro de Docker. No iniciar el servicio `api` de Compose salvo que se quiera probar deliberadamente el stack completo.
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+docker compose up -d db
+python manage.py migrate
+python manage.py runserver
+```
+
+- PostgreSQL se publica en `localhost:55432` y conserva `5432` dentro de Docker.
+- `config.settings.development` carga `.env` automáticamente sin reemplazar variables ya definidas en el proceso.
+- Los comandos locales de Django deben ejecutarse con el entorno virtual activo.
+- Para el stack completo, usar `docker compose up --build` y ejecutar comandos Django mediante `docker compose exec api python manage.py <comando>`.
+
 ## Calidad y entrega
 
 Antes de finalizar un cambio:
@@ -41,11 +57,27 @@ Antes de finalizar un cambio:
 python manage.py check
 python manage.py makemigrations --check --dry-run
 python manage.py spectacular --validate --file schema.yml
+python -m pytest
+python -m ruff check .
+python -m ruff format --check .
 docker compose config --quiet
 ```
 
 Agregar pruebas cuando aparezca lógica condicional o reglas de negocio. Mantener comentarios centrados en el porqué; los nombres deben explicar el qué.
 
+## Control de versiones
+
+- No incluir `.env`, `.venv`, cachés, cobertura, credenciales ni datos generados localmente.
+- Sí versionar `.env.example`, migraciones de Django, archivos `__init__.py`, documentación y configuración reproducible.
+- Revisar `git status` antes de preparar un commit.
+- Mantener cada commit enfocado en una sola intención y usar mensajes descriptivos.
+- No reescribir ni descartar cambios ajenos o no relacionados con la tarea actual.
+
 ## Documentación
 
 Actualizar el README del módulo cuando cambie su responsabilidad. Las decisiones transversales deben registrarse en `docs/architecture.md`; los detalles operativos pertenecen a `docs/docker.md` o `docs/environment.md`.
+
+- Actualizar `docs/endpoints.md` y OpenAPI al crear o modificar endpoints.
+- Actualizar `.env.example` y `docs/environment.md` al agregar o cambiar variables.
+- Actualizar `docs/docker.md` cuando cambien servicios, puertos, volúmenes o comandos de contenedores.
+- Documentar en el README cualquier cambio que afecte la instalación o el flujo inicial.

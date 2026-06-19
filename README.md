@@ -2,7 +2,7 @@
 
 Backend de Eduplain para una plataforma académica universitaria, construido con Django REST Framework, PostgreSQL y una organización modular inspirada en DDD y Clean Architecture.
 
-Runtime oficial: **Python 3.13.13**. La versión está fijada en Docker y en `.python-version`; el proyecto rechaza intérpretes anteriores o de otra rama para evitar diferencias entre desarrollo y producción.
+Runtime oficial: **CPython 3.13.13 o un parche posterior de la rama 3.13**. La versión está fijada en Docker y en `.python-version`; el proyecto rechaza intérpretes anteriores o de otra rama para evitar diferencias entre desarrollo y producción. No use builds `3.13t` free-threaded; el runtime validado es CPython estándar.
 
 ## Alcance actual
 
@@ -15,6 +15,17 @@ Runtime oficial: **Python 3.13.13**. La versión está fijada en Docker y en `.p
 ## Inicio rápido: Django local y PostgreSQL en Docker
 
 El flujo recomendado para desarrollo mantiene Django en el entorno virtual local y ejecuta únicamente PostgreSQL en Docker.
+
+Compruebe primero que el intérprete local sea compatible:
+
+```powershell
+python --version
+# Python 3.13.13
+py -3.13 --version
+# Python 3.13.13
+```
+
+Si `py -3.13` resuelve a una versión anterior a `3.13.13`, instale un parche más reciente de CPython 3.13 antes de crear el entorno virtual.
 
 ```powershell
 py -3.13 -m venv .venv
@@ -65,7 +76,12 @@ User.objects.create_user(
 
 ## Stack completo en Docker
 
-También puede ejecutar PostgreSQL y Django dentro de Docker:
+También puede ejecutar PostgreSQL y Django dentro de Docker. Si no creó `.env` en el inicio rápido, hágalo antes de iniciar el stack:
+
+```powershell
+Copy-Item .env.example .env
+# Reemplace DJANGO_SECRET_KEY y POSTGRES_PASSWORD antes de iniciar.
+```
 
 ```powershell
 docker compose up --build
@@ -76,13 +92,6 @@ En este modo, Compose reemplaza internamente `POSTGRES_HOST` por `db` y `POSTGRE
 ```powershell
 docker compose exec api python manage.py migrate
 docker compose exec api python manage.py shell
-```
-
-Compruebe el runtime local antes de instalar:
-
-```powershell
-python --version
-# Python 3.13.13
 ```
 
 Consulte [docs/environment.md](docs/environment.md) para conocer las variables y [docs/docker.md](docs/docker.md) para administrar los contenedores.
@@ -127,6 +136,7 @@ La composición de dependencias se realiza en la vista por ahora. Cuando crezca 
 ## Documentación
 
 - [Arquitectura](docs/architecture.md)
+- [Construcción del proyecto](docs/construccion.md)
 - [Variables de entorno](docs/environment.md)
 - [Endpoints](docs/endpoints.md)
 - [Docker](docs/docker.md)
@@ -134,13 +144,22 @@ La composición de dependencias se realiza en la vista por ahora. Cuando crezca 
 
 ## Calidad y SonarQube
 
-Instale las herramientas de desarrollo y genere el reporte que consume SonarQube:
+Instale las herramientas de desarrollo:
 
 ```powershell
 python -m pip install -r requirements-dev.txt
-ruff check .
-ruff format --check .
-pytest
+```
+
+Antes de finalizar un cambio, ejecute las validaciones del proyecto:
+
+```powershell
+python manage.py check
+python manage.py makemigrations --check --dry-run
+python manage.py spectacular --validate --file schema.yml
+python -m pytest
+python -m ruff check .
+python -m ruff format --check .
+docker compose config --quiet
 ```
 
 `pytest` genera `coverage.xml`. `sonar-project.properties` configura Python 3.13, fuentes, pruebas, cobertura y exclusiones técnicas como migraciones.
