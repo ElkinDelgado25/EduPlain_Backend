@@ -9,6 +9,10 @@ La configuración sigue los principios de Twelve-Factor App: los valores operati
 | `DJANGO_ALLOWED_HOSTS` | Sí | `api.example.edu` | Hosts separados por comas. |
 | `DJANGO_ENVIRONMENT` | Sí | `production` | Nombre informativo del entorno. |
 | `DJANGO_SETTINGS_MODULE` | Sí | `config.settings.production` | Módulo de configuración que carga Django. |
+| `DJANGO_SUPERUSER_USERNAME` | No | `elkin` | Usuario del bootstrap administrativo. |
+| `DJANGO_SUPERUSER_EMAIL` | No | `elkindelgado05@gmail.com` | Correo del bootstrap administrativo. |
+| `DJANGO_SUPERUSER_FULL_NAME` | No | `Elkin Delgado` | Nombre completo requerido por `users.User`. |
+| `DJANGO_SUPERUSER_PASSWORD` | No | Sin valor | Secreto requerido únicamente para crear la cuenta inicial. |
 | `POSTGRES_DB` | Sí | `academic_db` | Base de datos. |
 | `POSTGRES_USER` | Sí | `academic_user` | Usuario de PostgreSQL. |
 | `POSTGRES_PASSWORD` | Sí | `strong-secret` | Contraseña de PostgreSQL. |
@@ -38,6 +42,18 @@ $env:POSTGRES_HOST = "localhost"
 $env:POSTGRES_PORT = "55432"
 python manage.py runserver
 ```
+
+## Superusuario inicial
+
+El comando `python manage.py bootstrap_superuser` utiliza las variables `DJANGO_SUPERUSER_*`. Es idempotente: si el usuario ya es superusuario, termina correctamente sin cambiar su contraseña. Si existe como usuario normal, se detiene para evitar una elevación de privilegios accidental.
+
+`DJANGO_SUPERUSER_PASSWORD` nunca debe versionarse. El valor `CHANGE_ME` se rechaza explícitamente.
+
+### Recomendación por entorno
+
+- **Local:** ejecutar el comando manualmente con una contraseña temporal en `.env`; eliminar el valor después de crear la cuenta.
+- **Staging:** inyectar las variables desde el gestor de secretos y ejecutar el comando como tarea idempotente durante el despliegue.
+- **Producción:** ejecutar el comando como una tarea única y auditable después de las migraciones. No crear administradores mediante señales, imports ni migraciones de datos, y no conservar la contraseña bootstrap como variable permanente del servicio web.
 
 ## Producción
 

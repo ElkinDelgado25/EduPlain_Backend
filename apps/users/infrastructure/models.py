@@ -1,7 +1,21 @@
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import (
+    AbstractUser,
+)
+from django.contrib.auth.models import (
+    UserManager as DjangoUserManager,
+)
 from django.db import models
 
 from apps.users.domain.entities import UserRole
+
+
+class UserManager(DjangoUserManager):
+    """Keep Django administrators aligned with Eduplain's user profile rules."""
+
+    def create_superuser(self, username, email=None, password=None, **extra_fields):
+        extra_fields.setdefault("role", UserRole.ADMINISTRATOR.value)
+        extra_fields.setdefault("is_public", False)
+        return super().create_superuser(username, email, password, **extra_fields)
 
 
 class User(AbstractUser):
@@ -20,6 +34,9 @@ class User(AbstractUser):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    objects = UserManager()
+    REQUIRED_FIELDS = ["email", "full_name"]
 
     class Meta:
         ordering = ("full_name", "id")

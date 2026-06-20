@@ -7,7 +7,7 @@
 - `db`: PostgreSQL con volumen persistente y health check.
 - `api`: aplicación Django de Eduplain expuesta en el puerto `8000`.
 
-PostgreSQL publica el puerto `55432` del host hacia su puerto interno `5432` para que Django pueda ejecutarse desde el entorno virtual sin interferir con otras instalaciones locales de PostgreSQL. La API espera a que PostgreSQL esté saludable, ejecuta migraciones y luego inicia el servidor de desarrollo cuando se utiliza el stack completo.
+PostgreSQL publica el puerto `55432` del host hacia su puerto interno `5432` para que Django pueda ejecutarse desde el entorno virtual sin interferir con otras instalaciones locales de PostgreSQL. Cuando se utiliza el stack completo, la API espera a PostgreSQL, ejecuta migraciones, intenta el bootstrap opcional del superusuario y luego inicia el servidor de desarrollo.
 
 ## Solo PostgreSQL para desarrollo local
 
@@ -18,7 +18,7 @@ docker compose up -d db
 docker compose ps
 ```
 
-En `.env`, use `POSTGRES_HOST=localhost` y `POSTGRES_PORT=55432`. Después cargue las variables en PowerShell y ejecute `python manage.py migrate` y `python manage.py runserver` desde el host.
+En `.env`, use `POSTGRES_HOST=localhost` y `POSTGRES_PORT=55432`. La configuración de desarrollo carga ese archivo automáticamente; ejecute `python manage.py migrate` y `python manage.py runserver` desde el host.
 
 ## Stack completo
 
@@ -35,6 +35,16 @@ docker compose up --build
 ```
 
 Aunque `.env` utiliza `POSTGRES_HOST=localhost` y `POSTGRES_PORT=55432` para el proceso local, Compose configura `POSTGRES_HOST=db` y `POSTGRES_PORT=5432` dentro del contenedor `api`.
+
+### Bootstrap opcional del superusuario
+
+Defina `DJANGO_SUPERUSER_PASSWORD` en `.env` para que el stack completo cree la cuenta inicial después de migrar. El comando no cambia cuentas existentes y omite la creación cuando la contraseña está vacía:
+
+```powershell
+docker compose exec api python manage.py bootstrap_superuser
+```
+
+No incorpore la contraseña en la imagen ni en `docker-compose.yml`. En staging y producción, inyéctela desde el gestor de secretos de la plataforma y ejecute el comando como una tarea única controlada.
 
 ## Comandos útiles
 

@@ -56,6 +56,16 @@ Servicios disponibles:
 | Swagger UI | <http://localhost:8000/api/docs/> |
 | Esquema OpenAPI | <http://localhost:8000/api/schema/> |
 
+### Superusuario inicial opcional
+
+Para una instalación nueva, configure temporalmente `DJANGO_SUPERUSER_PASSWORD` en `.env` y ejecute:
+
+```powershell
+python manage.py bootstrap_superuser
+```
+
+El comando crea `elkin` como administrador privado usando los datos `DJANGO_SUPERUSER_*`. Si la cuenta ya existe como superusuario, no cambia su contraseña. Acceda al panel en <http://localhost:8000/admin/>.
+
 La lista de usuarios comienza vacía. Puede crear datos desde el shell de Django:
 
 ```powershell

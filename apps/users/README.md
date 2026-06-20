@@ -12,3 +12,9 @@ Capas:
 El archivo raíz `models.py` es únicamente un puente para el autodiscovery de Django; la implementación persistente continúa en `infrastructure/models.py`.
 
 No existen endpoints de login, JWT, creación, edición o eliminación. El modelo hereda de `AbstractUser` para habilitar una evolución posterior sin sustituir la tabla principal de identidad.
+
+## Superusuario inicial
+
+El comando `python manage.py bootstrap_superuser` crea de forma idempotente un administrador configurado mediante `DJANGO_SUPERUSER_*`. Requiere una contraseña explícita, asigna el rol `administrator`, oculta la cuenta del directorio público y no eleva usuarios normales que ya existan.
+
+El stack completo de Docker lo ejecuta después de las migraciones con `--skip-if-unconfigured`; si la contraseña está vacía, el arranque continúa sin crear una cuenta.
