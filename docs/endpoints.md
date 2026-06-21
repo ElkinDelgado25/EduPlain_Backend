@@ -42,6 +42,30 @@ Respuesta `200 OK`:
 
 Una instalación nueva devuelve `[]` hasta crear usuarios. Los únicos roles válidos actualmente son `student`, `professor` y `administrator`.
 
+## Documentos
+
+`POST /api/documents/pdf-to-markdown/`
+
+- Autenticación: requerida por la política global del backend.
+- Objetivo: convertir un PDF académico en Markdown para validar el procesamiento inicial de sílabos.
+- Formato de envío: `multipart/form-data`.
+- Campo requerido: `file`, con un PDF de hasta 10 MB.
+
+Respuesta `200 OK`:
+
+```json
+{
+  "filename": "silabo.pdf",
+  "characters": 18420,
+  "markdown": "# Contenido extraído..."
+}
+```
+
+Errores esperados:
+
+- `400 Bad Request` si el archivo no es PDF, supera el tamaño permitido o no puede convertirse.
+- `401 Unauthorized` o `403 Forbidden` si la solicitud no está autenticada.
+
 ## OpenAPI
 
 | Método | Ruta | Descripción |

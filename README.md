@@ -7,6 +7,7 @@ Runtime oficial: **CPython 3.13.13 o un parche posterior de la rama 3.13**. La v
 ## Alcance actual
 
 - Comprobación pública de salud del servicio.
+- Conversión autenticada de PDF a Markdown para validar el procesamiento inicial de sílabos.
 - Directorio público de usuarios con una salida limitada a `id`, `full_name`, `email` y `role`.
 - Contrato OpenAPI y Swagger UI.
 - PostgreSQL y entorno local reproducible con Docker Compose.
@@ -34,13 +35,13 @@ python -m pip install -r requirements.txt
 Copy-Item .env.example .env
 ```
 
-Edite `.env` y asigne valores locales a `DJANGO_SECRET_KEY` y `POSTGRES_PASSWORD`. Mantenga `POSTGRES_HOST=localhost` y `POSTGRES_PORT=55432`; se usa un puerto alto en el host para no interferir con instalaciones locales de PostgreSQL. Después levante solamente la base de datos:
+Edite `.env` y asigne valores locales a `DJANGO_SECRET_KEY` y `POSTGRES_PASSWORD`. Si necesita valores exclusivos de su equipo, copie `.env.local.example` como `.env.local`; en desarrollo ese archivo sobrescribe `.env`, pero ambos siguen ignorados por Git. Mantenga `POSTGRES_HOST=localhost` y `POSTGRES_PORT=55432`; se usa un puerto alto en el host para no interferir con instalaciones locales de PostgreSQL. Después levante solamente la base de datos:
 
 ```powershell
 docker compose up -d db
 ```
 
-La configuración de desarrollo carga `.env` automáticamente. Aplique las migraciones e inicie Django:
+La configuración de desarrollo carga `.env` y luego `.env.local` automáticamente. Aplique las migraciones e inicie Django:
 
 ```powershell
 python manage.py migrate
@@ -130,6 +131,7 @@ La composición de dependencias se realiza en la vista por ahora. Cuando crezca 
 ./
 ├── apps/
 │   ├── health/
+│   ├── documents/
 │   └── users/
 │       ├── domain/
 │       ├── application/

@@ -4,6 +4,7 @@
 
 Los módulos actuales son:
 
+- `documents`: procesamiento documental para convertir PDFs académicos en Markdown.
 - `health`: estado operativo del servicio.
 - `users`: directorio académico y base para identidad futura.
 

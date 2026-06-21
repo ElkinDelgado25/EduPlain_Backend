@@ -45,7 +45,7 @@ python manage.py runserver
 ```
 
 - PostgreSQL se publica en `localhost:55432` y conserva `5432` dentro de Docker.
-- `config.settings.development` carga `.env` automáticamente sin reemplazar variables ya definidas en el proceso.
+- `config.settings.development` carga `.env` y luego `.env.local` sin reemplazar variables ya definidas en el proceso.
 - Los comandos locales de Django deben ejecutarse con el entorno virtual activo.
 - Para el stack completo, usar `docker compose up --build` y ejecutar comandos Django mediante `docker compose exec api python manage.py <comando>`.
 

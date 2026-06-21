@@ -176,6 +176,8 @@ La salida del modelo debe ser estructurada, preferiblemente JSON validable, para
 
 Para sílabos con texto real, se puede usar una librería de conversión de PDF a Markdown o texto, por ejemplo `pymupdf4llm`.
 
+El primer bloque backend implementado expone `POST /api/documents/pdf-to-markdown/`, que recibe un PDF autenticado por `multipart/form-data`, lo convierte a Markdown y devuelve el nombre del archivo, la cantidad de caracteres extraídos y el Markdown resultante. Este endpoint sirve como laboratorio técnico antes de construir la interfaz frontend.
+
 Para PDFs escaneados o basados en imágenes, se necesitará OCR antes de generar Markdown.
 
 Flujo recomendado:

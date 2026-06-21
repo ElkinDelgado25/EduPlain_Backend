@@ -1,10 +1,10 @@
 from pathlib import Path
 
-from dotenv import load_dotenv
+from .env_loader import load_local_env_files
 
-# Local development reads the repository .env before base settings require values.
-# Existing process variables keep precedence, matching Docker and CI behavior.
-load_dotenv(Path(__file__).resolve().parents[2] / ".env")
+BASE_DIR = Path(__file__).resolve().parents[2]
+
+load_local_env_files(BASE_DIR)
 
 from .base import *  # noqa: E402,F403
 

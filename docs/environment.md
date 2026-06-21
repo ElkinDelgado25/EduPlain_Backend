@@ -1,6 +1,6 @@
 # Variables de entorno
 
-La configuración sigue los principios de Twelve-Factor App: los valores operativos y secretos se reciben desde el entorno. `.env.example` documenta valores locales y puede copiarse como `.env`; el archivo real está ignorado por Git.
+La configuración sigue los principios de Twelve-Factor App: los valores operativos y secretos se reciben desde el entorno. `.env.example` documenta valores locales y puede copiarse como `.env`; los archivos reales `.env` y `.env.local` están ignorados por Git.
 
 | Variable | Requerida en producción | Ejemplo | Descripción |
 |---|---:|---|---|
@@ -22,7 +22,13 @@ Compose lee automáticamente un `.env` ubicado junto a `docker-compose.yml` y us
 
 ## Uso local de Django
 
-`config.settings.development` carga automáticamente el archivo `.env` de la raíz. Las variables ya definidas en el proceso tienen prioridad, por lo que CI, Docker y la terminal pueden sobrescribir los valores locales cuando sea necesario.
+`config.settings.development` carga automáticamente `.env` y luego `.env.local` desde la raíz. `.env.local` sirve para overrides exclusivos de esta máquina y tiene prioridad sobre `.env`. Las variables ya definidas en el proceso tienen prioridad sobre ambos archivos, por lo que CI, Docker y la terminal pueden sobrescribir valores locales cuando sea necesario.
+
+Orden de precedencia en desarrollo:
+
+```text
+variables del proceso > .env.local > .env
+```
 
 Producción no carga `.env` automáticamente y continúa dependiendo exclusivamente del entorno. También puede sobrescribir valores de desarrollo individualmente desde PowerShell:
 
@@ -54,4 +60,4 @@ El comando `python manage.py bootstrap_superuser` crea la identidad técnica `ed
 
 ## Producción
 
-No use los valores predeterminados de desarrollo. Genere una clave larga, mantenga `DJANGO_DEBUG=False`, limite `DJANGO_ALLOWED_HOSTS`, seleccione `config.settings.production` y administre secretos con el mecanismo seguro de la plataforma de despliegue.
+No use los valores predeterminados de desarrollo. Genere una clave larga, mantenga `DJANGO_DEBUG=False`, limite `DJANGO_ALLOWED_HOSTS`, seleccione `config.settings.production` y administre secretos con el mecanismo seguro de la plataforma de despliegue. No versionar ni compartir archivos `.env` con secretos de producción.
