@@ -6,6 +6,11 @@ from django.db import transaction
 
 from apps.users.domain.entities import UserRole
 
+BOOTSTRAP_USERNAME = "eduplain_su_owner"
+BOOTSTRAP_EMAIL = "owner@eduplain.local"
+BOOTSTRAP_FULL_NAME = "Eduplain System Owner"
+PASSWORD_ENVIRONMENT_VARIABLE = "EDUPLAIN_BOOTSTRAP_ADMIN_PASSWORD"
+
 
 class Command(BaseCommand):
     """Create the configured initial superuser exactly once."""
@@ -16,13 +21,13 @@ class Command(BaseCommand):
         parser.add_argument(
             "--skip-if-unconfigured",
             action="store_true",
-            help="Exit successfully when DJANGO_SUPERUSER_PASSWORD is not configured.",
+            help=f"Exit successfully when {PASSWORD_ENVIRONMENT_VARIABLE} is not configured.",
         )
 
     @transaction.atomic
     def handle(self, *args, **options) -> None:
         user_model = get_user_model()
-        username = os.getenv("DJANGO_SUPERUSER_USERNAME", "elkin").strip()
+        username = BOOTSTRAP_USERNAME
 
         existing_user = user_model.objects.filter(username=username).first()
         if existing_user is not None:
@@ -33,36 +38,36 @@ class Command(BaseCommand):
                 f"User '{username}' already exists but is not a superuser; refusing to elevate it."
             )
 
-        email = os.getenv("DJANGO_SUPERUSER_EMAIL", "elkindelgado05@gmail.com").strip()
-        full_name = os.getenv("DJANGO_SUPERUSER_FULL_NAME", "Elkin Delgado").strip()
-        password = os.getenv("DJANGO_SUPERUSER_PASSWORD", "")
+        password = os.getenv(PASSWORD_ENVIRONMENT_VARIABLE, "")
 
         if not password:
             if options["skip_if_unconfigured"]:
                 self.stdout.write(
                     self.style.WARNING(
-                        "Superuser bootstrap skipped: DJANGO_SUPERUSER_PASSWORD is not configured."
+                        f"Superuser bootstrap skipped: {PASSWORD_ENVIRONMENT_VARIABLE} "
+                        "is not configured."
                     )
                 )
                 return
-            raise CommandError("DJANGO_SUPERUSER_PASSWORD is required to create the superuser.")
+            raise CommandError(
+                f"{PASSWORD_ENVIRONMENT_VARIABLE} is required to create the superuser."
+            )
 
         if password == "CHANGE_ME":
-            raise CommandError("DJANGO_SUPERUSER_PASSWORD must not use the CHANGE_ME placeholder.")
-        if not email:
-            raise CommandError("DJANGO_SUPERUSER_EMAIL must not be empty.")
-        if not full_name:
-            raise CommandError("DJANGO_SUPERUSER_FULL_NAME must not be empty.")
-        if user_model.objects.filter(email=email).exists():
             raise CommandError(
-                f"Email '{email}' is already assigned to another user; superuser was not created."
+                f"{PASSWORD_ENVIRONMENT_VARIABLE} must not use the CHANGE_ME placeholder."
+            )
+        if user_model.objects.filter(email=BOOTSTRAP_EMAIL).exists():
+            raise CommandError(
+                f"Email '{BOOTSTRAP_EMAIL}' is already assigned to another user; "
+                "superuser was not created."
             )
 
         user_model.objects.create_superuser(
             username=username,
-            email=email,
+            email=BOOTSTRAP_EMAIL,
             password=password,
-            full_name=full_name,
+            full_name=BOOTSTRAP_FULL_NAME,
             role=UserRole.ADMINISTRATOR.value,
             is_public=False,
         )

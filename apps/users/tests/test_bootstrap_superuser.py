@@ -22,16 +22,13 @@ def test_standard_manager_creates_private_administrator() -> None:
 
 @pytest.mark.django_db
 def test_bootstrap_superuser_creates_configured_administrator(monkeypatch) -> None:
-    monkeypatch.setenv("DJANGO_SUPERUSER_USERNAME", "elkin")
-    monkeypatch.setenv("DJANGO_SUPERUSER_EMAIL", "elkindelgado05@gmail.com")
-    monkeypatch.setenv("DJANGO_SUPERUSER_FULL_NAME", "Elkin Delgado")
-    monkeypatch.setenv("DJANGO_SUPERUSER_PASSWORD", "strong-local-test-password")
+    monkeypatch.setenv("EDUPLAIN_BOOTSTRAP_ADMIN_PASSWORD", "strong-local-test-password")
 
     call_command("bootstrap_superuser")
 
-    user = get_user_model().objects.get(username="elkin")
-    assert user.email == "elkindelgado05@gmail.com"
-    assert user.full_name == "Elkin Delgado"
+    user = get_user_model().objects.get(username="eduplain_su_owner")
+    assert user.email == "owner@eduplain.local"
+    assert user.full_name == "Eduplain System Owner"
     assert user.role == UserRole.ADMINISTRATOR.value
     assert user.is_superuser is True
     assert user.is_staff is True
@@ -41,17 +38,20 @@ def test_bootstrap_superuser_creates_configured_administrator(monkeypatch) -> No
 
 @pytest.mark.django_db
 def test_bootstrap_superuser_is_idempotent(monkeypatch) -> None:
-    monkeypatch.setenv("DJANGO_SUPERUSER_PASSWORD", "strong-local-test-password")
+    monkeypatch.setenv("EDUPLAIN_BOOTSTRAP_ADMIN_PASSWORD", "strong-local-test-password")
 
     call_command("bootstrap_superuser")
     call_command("bootstrap_superuser")
 
-    assert get_user_model().objects.filter(username="elkin", is_superuser=True).count() == 1
+    assert (
+        get_user_model().objects.filter(username="eduplain_su_owner", is_superuser=True).count()
+        == 1
+    )
 
 
 @pytest.mark.django_db
 def test_bootstrap_superuser_can_skip_when_password_is_not_configured(monkeypatch) -> None:
-    monkeypatch.delenv("DJANGO_SUPERUSER_PASSWORD", raising=False)
+    monkeypatch.delenv("EDUPLAIN_BOOTSTRAP_ADMIN_PASSWORD", raising=False)
 
     call_command("bootstrap_superuser", skip_if_unconfigured=True)
 
@@ -61,12 +61,12 @@ def test_bootstrap_superuser_can_skip_when_password_is_not_configured(monkeypatc
 @pytest.mark.django_db
 def test_bootstrap_superuser_refuses_to_elevate_existing_user(monkeypatch) -> None:
     get_user_model().objects.create_user(
-        username="elkin",
-        email="elkindelgado05@gmail.com",
+        username="eduplain_su_owner",
+        email="owner@eduplain.local",
         password="regular-user-password",
-        full_name="Elkin Delgado",
+        full_name="Eduplain System Owner",
     )
-    monkeypatch.setenv("DJANGO_SUPERUSER_PASSWORD", "strong-local-test-password")
+    monkeypatch.setenv("EDUPLAIN_BOOTSTRAP_ADMIN_PASSWORD", "strong-local-test-password")
 
     with pytest.raises(CommandError, match="refusing to elevate"):
         call_command("bootstrap_superuser")

@@ -38,7 +38,7 @@ Aunque `.env` utiliza `POSTGRES_HOST=localhost` y `POSTGRES_PORT=55432` para el 
 
 ### Bootstrap opcional del superusuario
 
-Defina `DJANGO_SUPERUSER_PASSWORD` en `.env` para que el stack completo cree la cuenta inicial después de migrar. El comando no cambia cuentas existentes y omite la creación cuando la contraseña está vacía:
+Defina `EDUPLAIN_BOOTSTRAP_ADMIN_PASSWORD` en `.env` para que el stack completo cree `eduplain_su_owner` después de migrar. El comando no cambia cuentas existentes y omite la creación cuando la contraseña está vacía:
 
 ```powershell
 docker compose exec api python manage.py bootstrap_superuser

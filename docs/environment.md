@@ -9,10 +9,7 @@ La configuración sigue los principios de Twelve-Factor App: los valores operati
 | `DJANGO_ALLOWED_HOSTS` | Sí | `api.example.edu` | Hosts separados por comas. |
 | `DJANGO_ENVIRONMENT` | Sí | `production` | Nombre informativo del entorno. |
 | `DJANGO_SETTINGS_MODULE` | Sí | `config.settings.production` | Módulo de configuración que carga Django. |
-| `DJANGO_SUPERUSER_USERNAME` | No | `elkin` | Usuario del bootstrap administrativo. |
-| `DJANGO_SUPERUSER_EMAIL` | No | `elkindelgado05@gmail.com` | Correo del bootstrap administrativo. |
-| `DJANGO_SUPERUSER_FULL_NAME` | No | `Elkin Delgado` | Nombre completo requerido por `users.User`. |
-| `DJANGO_SUPERUSER_PASSWORD` | No | Sin valor | Secreto requerido únicamente para crear la cuenta inicial. |
+| `EDUPLAIN_BOOTSTRAP_ADMIN_PASSWORD` | No | Sin valor | Secreto temporal para crear `eduplain_su_owner`. |
 | `POSTGRES_DB` | Sí | `academic_db` | Base de datos. |
 | `POSTGRES_USER` | Sí | `academic_user` | Usuario de PostgreSQL. |
 | `POSTGRES_PASSWORD` | Sí | `strong-secret` | Contraseña de PostgreSQL. |
@@ -45,9 +42,9 @@ python manage.py runserver
 
 ## Superusuario inicial
 
-El comando `python manage.py bootstrap_superuser` utiliza las variables `DJANGO_SUPERUSER_*`. Es idempotente: si el usuario ya es superusuario, termina correctamente sin cambiar su contraseña. Si existe como usuario normal, se detiene para evitar una elevación de privilegios accidental.
+El comando `python manage.py bootstrap_superuser` crea la identidad técnica `eduplain_su_owner`; únicamente obtiene su contraseña desde `EDUPLAIN_BOOTSTRAP_ADMIN_PASSWORD`. Es idempotente: si el usuario ya es superusuario, termina correctamente sin cambiar su contraseña. Si existe como usuario normal, se detiene para evitar una elevación de privilegios accidental.
 
-`DJANGO_SUPERUSER_PASSWORD` nunca debe versionarse. El valor `CHANGE_ME` se rechaza explícitamente.
+`EDUPLAIN_BOOTSTRAP_ADMIN_PASSWORD` nunca debe versionarse. El valor `CHANGE_ME` se rechaza explícitamente.
 
 ### Recomendación por entorno
 

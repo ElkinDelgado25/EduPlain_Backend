@@ -58,13 +58,13 @@ Servicios disponibles:
 
 ### Superusuario inicial opcional
 
-Para una instalación nueva, configure temporalmente `DJANGO_SUPERUSER_PASSWORD` en `.env` y ejecute:
+Para una instalación nueva, configure temporalmente `EDUPLAIN_BOOTSTRAP_ADMIN_PASSWORD` en `.env` y ejecute:
 
 ```powershell
 python manage.py bootstrap_superuser
 ```
 
-El comando crea `elkin` como administrador privado usando los datos `DJANGO_SUPERUSER_*`. Si la cuenta ya existe como superusuario, no cambia su contraseña. Acceda al panel en <http://localhost:8000/admin/>.
+El comando crea `eduplain_su_owner` con correo técnico `owner@eduplain.local`, nombre `Eduplain System Owner`, rol `administrator` y visibilidad pública desactivada. Si la cuenta ya existe como superusuario, no cambia su contraseña. Acceda al panel en <http://localhost:8000/admin/>.
 
 La lista de usuarios comienza vacía. Puede crear datos desde el shell de Django:
 
