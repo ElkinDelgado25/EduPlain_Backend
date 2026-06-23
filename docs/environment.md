@@ -15,6 +15,9 @@ La configuración sigue los principios de Twelve-Factor App: los valores operati
 | `POSTGRES_PASSWORD` | Sí | `strong-secret` | Contraseña de PostgreSQL. |
 | `POSTGRES_HOST` | Sí | `localhost` | Host de PostgreSQL para Django ejecutado localmente. |
 | `POSTGRES_PORT` | Sí | `55432` | Puerto publicado por Docker para Django local. |
+| `DOCUMENT_STORAGE_BACKEND` | Sí | `local` | Backend para guardar PDFs. Actualmente solo `local` está implementado. |
+| `DOCUMENT_STORAGE_ROOT` | No | `media/documents` | Directorio local para PDFs y catálogo JSON cuando el backend es `local`. |
+| `NOSQL_DATABASE_CONNECTION` | No | Sin valor | Cadena de conexión reservada para un backend NoSQL/Mongo futuro. No se usa mientras `DOCUMENT_STORAGE_BACKEND=local`. |
 
 ## Uso con Docker Compose
 
@@ -51,6 +54,12 @@ python manage.py runserver
 El comando `python manage.py bootstrap_superuser` crea la identidad técnica `eduplain_su_owner`; únicamente obtiene su contraseña desde `EDUPLAIN_BOOTSTRAP_ADMIN_PASSWORD`. Es idempotente: si el usuario ya es superusuario, termina correctamente sin cambiar su contraseña. Si existe como usuario normal, se detiene para evitar una elevación de privilegios accidental.
 
 `EDUPLAIN_BOOTSTRAP_ADMIN_PASSWORD` nunca debe versionarse. El valor `CHANGE_ME` se rechaza explícitamente.
+
+## Almacenamiento documental
+
+El backend inicial de documentos usa `DOCUMENT_STORAGE_BACKEND=local`. En ese modo, los PDFs se guardan en `DOCUMENT_STORAGE_ROOT` y el catálogo de metadatos vive en un archivo JSON local. Este modo es útil para desarrollo y primeras pruebas del flujo de sílabos.
+
+`NOSQL_DATABASE_CONNECTION` queda documentada para una evolución posterior hacia MongoDB, S3 compatible, OneDrive u otro backend externo. No debe contener secretos reales en archivos versionados.
 
 ### Recomendación por entorno
 

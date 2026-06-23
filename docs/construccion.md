@@ -178,6 +178,8 @@ Para sílabos con texto real, se puede usar una librería de conversión de PDF 
 
 El primer bloque backend implementado expone `POST /api/documents/pdf-to-markdown/`, que recibe un PDF autenticado por `multipart/form-data`, lo convierte a Markdown y devuelve el nombre del archivo, la cantidad de caracteres extraídos y el Markdown resultante. Este endpoint sirve como laboratorio técnico antes de construir la interfaz frontend.
 
+También se deja una base inicial de almacenamiento documental con `POST /api/documents/pdfs/`, `GET /api/documents/pdfs/` y `GET /api/documents/pdfs/{id}/`. El adaptador actual guarda PDFs en filesystem local y catálogo JSON. La variable `NOSQL_DATABASE_CONNECTION` queda reservada para sustituir ese adaptador por un backend MongoDB, S3 compatible, OneDrive u otro storage externo.
+
 Para PDFs escaneados o basados en imágenes, se necesitará OCR antes de generar Markdown.
 
 Flujo recomendado:

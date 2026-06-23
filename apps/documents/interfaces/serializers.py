@@ -19,3 +19,17 @@ class PdfToMarkdownOutputSerializer(serializers.Serializer):
     filename = serializers.CharField(read_only=True)
     characters = serializers.IntegerField(read_only=True)
     markdown = serializers.CharField(read_only=True)
+
+
+class StoredPdfInputSerializer(PdfToMarkdownInputSerializer):
+    pass
+
+
+class StoredPdfOutputSerializer(serializers.Serializer):
+    id = serializers.CharField(read_only=True)
+    filename = serializers.CharField(read_only=True)
+    content_type = serializers.CharField(read_only=True)
+    size_bytes = serializers.IntegerField(read_only=True)
+    storage_backend = serializers.CharField(read_only=True)
+    storage_key = serializers.CharField(read_only=True)
+    created_at = serializers.CharField(read_only=True)

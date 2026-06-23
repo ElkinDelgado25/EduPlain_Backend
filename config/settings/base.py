@@ -99,8 +99,19 @@ USE_I18N = True
 USE_TZ = True
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
+MEDIA_URL = "media/"
+MEDIA_ROOT = BASE_DIR / "media"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = "users.User"
+
+DOCUMENT_STORAGE_BACKEND = env("DOCUMENT_STORAGE_BACKEND", "local")
+_document_storage_root = Path(env("DOCUMENT_STORAGE_ROOT", str(MEDIA_ROOT / "documents")))
+DOCUMENT_STORAGE_ROOT = (
+    _document_storage_root
+    if _document_storage_root.is_absolute()
+    else BASE_DIR / _document_storage_root
+)
+NOSQL_DATABASE_CONNECTION = env("NOSQL_DATABASE_CONNECTION", "")
 
 REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",

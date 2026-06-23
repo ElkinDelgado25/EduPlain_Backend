@@ -66,6 +66,59 @@ Errores esperados:
 - `400 Bad Request` si el archivo no es PDF, supera el tamaño permitido o no puede convertirse.
 - `401 Unauthorized` o `403 Forbidden` si la solicitud no está autenticada.
 
+`POST /api/documents/pdfs/`
+
+- Autenticación: requerida por la política global del backend.
+- Objetivo: guardar un PDF académico en el storage documental configurado y devolver su metadata.
+- Formato de envío: `multipart/form-data`.
+- Campo requerido: `file`, con un PDF de hasta 10 MB.
+
+Respuesta `201 Created`:
+
+```json
+{
+  "id": "0b9d3f7a4f2d4fb58d8eec6a0a88b2b5",
+  "filename": "silabo.pdf",
+  "content_type": "application/pdf",
+  "size_bytes": 18420,
+  "storage_backend": "local",
+  "storage_key": "pdfs/0b9d3f7a4f2d4fb58d8eec6a0a88b2b5-silabo.pdf",
+  "created_at": "2026-06-23T12:00:00Z"
+}
+```
+
+`GET /api/documents/pdfs/`
+
+- Autenticación: requerida.
+- Objetivo: consultar la metadata de PDFs guardados.
+
+Respuesta `200 OK`:
+
+```json
+[
+  {
+    "id": "0b9d3f7a4f2d4fb58d8eec6a0a88b2b5",
+    "filename": "silabo.pdf",
+    "content_type": "application/pdf",
+    "size_bytes": 18420,
+    "storage_backend": "local",
+    "storage_key": "pdfs/0b9d3f7a4f2d4fb58d8eec6a0a88b2b5-silabo.pdf",
+    "created_at": "2026-06-23T12:00:00Z"
+  }
+]
+```
+
+`GET /api/documents/pdfs/{id}/`
+
+- Autenticación: requerida.
+- Objetivo: consultar la metadata de un PDF guardado por identificador.
+
+Errores esperados:
+
+- `400 Bad Request` si el archivo enviado no es PDF o supera el tamaño permitido.
+- `404 Not Found` si el identificador no existe.
+- `500 Internal Server Error` si el backend de storage no está disponible o no está implementado.
+
 ## OpenAPI
 
 | Método | Ruta | Descripción |

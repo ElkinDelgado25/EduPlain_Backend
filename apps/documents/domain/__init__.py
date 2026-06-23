@@ -1,3 +1,3 @@
-from .entities import MarkdownDocument
+from .entities import MarkdownDocument, StoredPdfDocument
 
-__all__ = ["MarkdownDocument"]
+__all__ = ["MarkdownDocument", "StoredPdfDocument"]
