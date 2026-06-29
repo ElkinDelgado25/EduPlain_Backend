@@ -12,6 +12,7 @@ Runtime oficial: **CPython 3.13.13 o un parche posterior de la rama 3.13**. La v
 - Directorio público de usuarios con una salida limitada a `id`, `full_name`, `email` y `role`.
 - Contrato OpenAPI y Swagger UI.
 - PostgreSQL y entorno local reproducible con Docker Compose.
+- Orquestación local opcional con .NET Aspire para Django y PostgreSQL.
 - Modelo de usuario propio preparado para autenticación futura, sin implementar login ni JWT.
 
 ## Inicio rápido: Django local y PostgreSQL en Docker
@@ -57,6 +58,8 @@ Servicios disponibles:
 | Usuarios públicos | <http://localhost:8000/api/users/public/> |
 | Swagger UI | <http://localhost:8000/api/docs/> |
 | Esquema OpenAPI | <http://localhost:8000/api/schema/> |
+
+Para ejecutar endpoints protegidos desde Swagger UI, use `Authorize` con autenticación básica HTTP y las credenciales de un usuario activo.
 
 ### Superusuario inicial opcional
 
@@ -108,6 +111,17 @@ docker compose exec api python manage.py shell
 
 Consulte [docs/environment.md](docs/environment.md) para conocer las variables y [docs/docker.md](docs/docker.md) para administrar los contenedores.
 
+## Orquestación local con Aspire
+
+El repositorio incluye un AppHost de Aspire como alternativa de desarrollo local. Orquesta PostgreSQL, migraciones, bootstrap opcional y `runserver` sin mover lógica fuera de Django.
+
+```powershell
+dotnet build .\aspire\Eduplain.AppHost\Eduplain.AppHost.csproj
+aspire run --apphost .\aspire\Eduplain.AppHost
+```
+
+Aspire usa .NET SDK `10.0.201`, Aspire `13.4.6` y PostgreSQL `17-alpine`. Consulte [docs/aspire.md](docs/aspire.md) para puertos, variables y operación.
+
 ## Arquitectura
 
 Cada feature vive en `apps/` y separa responsabilidades:
@@ -130,6 +144,7 @@ La composición de dependencias se realiza en la vista por ahora. Cuando crezca 
 
 ```text
 ./
+├── aspire/
 ├── apps/
 │   ├── health/
 │   ├── documents/
@@ -149,6 +164,8 @@ La composición de dependencias se realiza en la vista por ahora. Cuando crezca 
 ## Documentación
 
 - [Arquitectura](docs/architecture.md)
+- [API, conexiones y credenciales](docs/api.md)
+- [Aspire](docs/aspire.md)
 - [Construcción del proyecto](docs/construccion.md)
 - [Variables de entorno](docs/environment.md)
 - [Endpoints](docs/endpoints.md)

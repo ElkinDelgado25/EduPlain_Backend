@@ -2,6 +2,10 @@
 
 Base local: `http://localhost:8000`
 
+Para detalles de autenticación, credenciales locales y ejemplos de conexión, consulte [`docs/api.md`](api.md).
+
+Los endpoints protegidos usan autenticación básica HTTP mientras no exista login institucional o JWT. En Swagger UI, use `Authorize` con el `username` y la contraseña de un usuario activo, por ejemplo el superusuario bootstrap local. Los endpoints declarados como públicos no requieren autenticación.
+
 ## Estado del servicio
 
 `GET /api/health/`

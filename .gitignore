@@ -1,6 +1,7 @@
 # Environment and secrets
 .env
 .env.local
+docs/credenciales.local.md
 
 # Python
 __pycache__/
@@ -23,6 +24,12 @@ venv/
 staticfiles/
 media/
 *.sqlite3
+
+# .NET / Aspire
+**/bin/
+**/obj/
+*.user
+.vs/
 
 # Editors and operating systems
 .idea/

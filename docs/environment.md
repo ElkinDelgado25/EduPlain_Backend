@@ -19,6 +19,8 @@ La configuración sigue los principios de Twelve-Factor App: los valores operati
 | `POSTGRES_PASSWORD` | Sí | `strong-secret` | Contraseña de PostgreSQL. |
 | `POSTGRES_HOST` | Sí | `localhost` | Host de PostgreSQL para Django ejecutado localmente. |
 | `POSTGRES_PORT` | Sí | `55432` | Puerto publicado por Docker para Django local. |
+| `ASPIRE_DJANGO_PORT` | No | `8000` | Puerto local usado por `django-api` cuando se ejecuta el AppHost de Aspire. |
+| `ASPIRE_POSTGRES_PORT` | No | `55433` | Puerto local publicado por PostgreSQL cuando se ejecuta el AppHost de Aspire. |
 | `DOCUMENT_STORAGE_BACKEND` | Sí | `local` | Backend para guardar PDFs. Actualmente solo `local` está implementado. |
 | `DOCUMENT_STORAGE_ROOT` | No | `media/documents` | Directorio local para PDFs y catálogo JSON cuando el backend es `local`. |
 | `NOSQL_DATABASE_CONNECTION` | No | Sin valor | Cadena de conexión reservada para un backend NoSQL/Mongo futuro. No se usa mientras `DOCUMENT_STORAGE_BACKEND=local`. |
@@ -52,6 +54,10 @@ $env:POSTGRES_HOST = "localhost"
 $env:POSTGRES_PORT = "55432"
 python manage.py runserver
 ```
+
+## Uso con Aspire
+
+El AppHost de Aspire lee `.env` y `.env.local`, crea PostgreSQL con `POSTGRES_DB`, `POSTGRES_USER` y `POSTGRES_PASSWORD`, y sobrescribe `POSTGRES_HOST`/`POSTGRES_PORT` en los procesos Django que orquesta. Por defecto Django usa `ASPIRE_DJANGO_PORT=8000` y PostgreSQL usa `ASPIRE_POSTGRES_PORT=55433` para no colisionar con el puerto `55432` de Docker Compose. Consulte `docs/aspire.md` para el flujo completo.
 
 ## Superusuario inicial
 
