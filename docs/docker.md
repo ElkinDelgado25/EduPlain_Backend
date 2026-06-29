@@ -38,13 +38,13 @@ Aunque `.env` utiliza `POSTGRES_HOST=localhost` y `POSTGRES_PORT=55432` para el 
 
 ### Bootstrap opcional del superusuario
 
-Defina `EDUPLAIN_BOOTSTRAP_ADMIN_PASSWORD` en `.env` para que el stack completo cree `eduplain_su_owner` después de migrar. El comando no cambia cuentas existentes y omite la creación cuando la contraseña está vacía:
+Defina las variables `EDUPLAIN_BOOTSTRAP_ADMIN_*` en `.env` para que el stack completo cree el superusuario inicial después de migrar. El comando no cambia cuentas existentes y omite la creación cuando la contraseña está vacía:
 
 ```powershell
 docker compose exec api python manage.py bootstrap_superuser
 ```
 
-No incorpore la contraseña en la imagen ni en `docker-compose.yml`. En staging y producción, inyéctela desde el gestor de secretos de la plataforma y ejecute el comando como una tarea única controlada.
+No incorpore la contraseña en la imagen ni en `docker-compose.yml`. En staging y producción, inyecte la identidad y la contraseña desde el gestor de secretos/configuración de la plataforma y ejecute el comando como una tarea única controlada.
 
 ## Comandos útiles
 

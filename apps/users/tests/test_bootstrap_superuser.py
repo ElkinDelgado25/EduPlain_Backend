@@ -37,6 +37,24 @@ def test_bootstrap_superuser_creates_configured_administrator(monkeypatch) -> No
 
 
 @pytest.mark.django_db
+def test_bootstrap_superuser_reads_identity_from_environment(monkeypatch) -> None:
+    monkeypatch.setenv("EDUPLAIN_BOOTSTRAP_ADMIN_USERNAME", "custom_owner")
+    monkeypatch.setenv("EDUPLAIN_BOOTSTRAP_ADMIN_EMAIL", "custom-owner@example.edu")
+    monkeypatch.setenv("EDUPLAIN_BOOTSTRAP_ADMIN_FULL_NAME", "Custom Owner")
+    monkeypatch.setenv("EDUPLAIN_BOOTSTRAP_ADMIN_ROLE", UserRole.ADMINISTRATOR.value)
+    monkeypatch.setenv("EDUPLAIN_BOOTSTRAP_ADMIN_PASSWORD", "strong-local-test-password")
+
+    call_command("bootstrap_superuser")
+
+    user = get_user_model().objects.get(username="custom_owner")
+    assert user.email == "custom-owner@example.edu"
+    assert user.full_name == "Custom Owner"
+    assert user.role == UserRole.ADMINISTRATOR.value
+    assert user.is_superuser is True
+    assert user.is_public is False
+
+
+@pytest.mark.django_db
 def test_bootstrap_superuser_is_idempotent(monkeypatch) -> None:
     monkeypatch.setenv("EDUPLAIN_BOOTSTRAP_ADMIN_PASSWORD", "strong-local-test-password")
 
@@ -69,4 +87,13 @@ def test_bootstrap_superuser_refuses_to_elevate_existing_user(monkeypatch) -> No
     monkeypatch.setenv("EDUPLAIN_BOOTSTRAP_ADMIN_PASSWORD", "strong-local-test-password")
 
     with pytest.raises(CommandError, match="refusing to elevate"):
+        call_command("bootstrap_superuser")
+
+
+@pytest.mark.django_db
+def test_bootstrap_superuser_rejects_invalid_role(monkeypatch) -> None:
+    monkeypatch.setenv("EDUPLAIN_BOOTSTRAP_ADMIN_ROLE", "owner")
+    monkeypatch.setenv("EDUPLAIN_BOOTSTRAP_ADMIN_PASSWORD", "strong-local-test-password")
+
+    with pytest.raises(CommandError, match="EDUPLAIN_BOOTSTRAP_ADMIN_ROLE"):
         call_command("bootstrap_superuser")

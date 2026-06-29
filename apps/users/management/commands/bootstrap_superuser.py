@@ -6,10 +6,20 @@ from django.db import transaction
 
 from apps.users.domain.entities import UserRole
 
-BOOTSTRAP_USERNAME = "eduplain_su_owner"
-BOOTSTRAP_EMAIL = "owner@eduplain.local"
-BOOTSTRAP_FULL_NAME = "Eduplain System Owner"
+BOOTSTRAP_USERNAME_ENVIRONMENT_VARIABLE = "EDUPLAIN_BOOTSTRAP_ADMIN_USERNAME"
+BOOTSTRAP_EMAIL_ENVIRONMENT_VARIABLE = "EDUPLAIN_BOOTSTRAP_ADMIN_EMAIL"
+BOOTSTRAP_FULL_NAME_ENVIRONMENT_VARIABLE = "EDUPLAIN_BOOTSTRAP_ADMIN_FULL_NAME"
+BOOTSTRAP_ROLE_ENVIRONMENT_VARIABLE = "EDUPLAIN_BOOTSTRAP_ADMIN_ROLE"
 PASSWORD_ENVIRONMENT_VARIABLE = "EDUPLAIN_BOOTSTRAP_ADMIN_PASSWORD"
+
+DEFAULT_BOOTSTRAP_USERNAME = "eduplain_su_owner"
+DEFAULT_BOOTSTRAP_EMAIL = "owner@eduplain.local"
+DEFAULT_BOOTSTRAP_FULL_NAME = "Eduplain System Owner"
+DEFAULT_BOOTSTRAP_ROLE = UserRole.ADMINISTRATOR.value
+
+
+def env_or_default(name: str, default: str) -> str:
+    return os.getenv(name, default).strip() or default
 
 
 class Command(BaseCommand):
@@ -27,7 +37,25 @@ class Command(BaseCommand):
     @transaction.atomic
     def handle(self, *args, **options) -> None:
         user_model = get_user_model()
-        username = BOOTSTRAP_USERNAME
+        username = env_or_default(
+            BOOTSTRAP_USERNAME_ENVIRONMENT_VARIABLE,
+            DEFAULT_BOOTSTRAP_USERNAME,
+        )
+        email = env_or_default(BOOTSTRAP_EMAIL_ENVIRONMENT_VARIABLE, DEFAULT_BOOTSTRAP_EMAIL)
+        full_name = env_or_default(
+            BOOTSTRAP_FULL_NAME_ENVIRONMENT_VARIABLE,
+            DEFAULT_BOOTSTRAP_FULL_NAME,
+        )
+        role = env_or_default(BOOTSTRAP_ROLE_ENVIRONMENT_VARIABLE, DEFAULT_BOOTSTRAP_ROLE)
+        password = os.getenv(PASSWORD_ENVIRONMENT_VARIABLE, "").strip()
+
+        try:
+            UserRole(role)
+        except ValueError as exc:
+            raise CommandError(
+                f"{BOOTSTRAP_ROLE_ENVIRONMENT_VARIABLE} must be one of: "
+                f"{', '.join(user_role.value for user_role in UserRole)}."
+            ) from exc
 
         existing_user = user_model.objects.filter(username=username).first()
         if existing_user is not None:
@@ -37,8 +65,6 @@ class Command(BaseCommand):
             raise CommandError(
                 f"User '{username}' already exists but is not a superuser; refusing to elevate it."
             )
-
-        password = os.getenv(PASSWORD_ENVIRONMENT_VARIABLE, "")
 
         if not password:
             if options["skip_if_unconfigured"]:
@@ -57,18 +83,17 @@ class Command(BaseCommand):
             raise CommandError(
                 f"{PASSWORD_ENVIRONMENT_VARIABLE} must not use the CHANGE_ME placeholder."
             )
-        if user_model.objects.filter(email=BOOTSTRAP_EMAIL).exists():
+        if user_model.objects.filter(email=email).exists():
             raise CommandError(
-                f"Email '{BOOTSTRAP_EMAIL}' is already assigned to another user; "
-                "superuser was not created."
+                f"Email '{email}' is already assigned to another user; superuser was not created."
             )
 
         user_model.objects.create_superuser(
             username=username,
-            email=BOOTSTRAP_EMAIL,
+            email=email,
             password=password,
-            full_name=BOOTSTRAP_FULL_NAME,
-            role=UserRole.ADMINISTRATOR.value,
+            full_name=full_name,
+            role=role,
             is_public=False,
         )
         self.stdout.write(self.style.SUCCESS(f"Superuser '{username}' created."))
