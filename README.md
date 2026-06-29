@@ -11,13 +11,83 @@ Runtime oficial: **CPython 3.13.13 o un parche posterior de la rama 3.13**. La v
 - Almacenamiento autenticado de PDFs con catálogo local reemplazable por storage externo.
 - Directorio público de usuarios con una salida limitada a `id`, `full_name`, `email` y `role`.
 - Contrato OpenAPI y Swagger UI.
-- PostgreSQL y entorno local reproducible con Docker Compose.
-- Orquestación local opcional con .NET Aspire para Django y PostgreSQL.
+- PostgreSQL y entorno local reproducible con .NET Aspire.
+- Docker Compose disponible como alternativa explícita.
 - Modelo de usuario propio preparado para autenticación futura, sin implementar login ni JWT.
 
-## Inicio rápido: Django local y PostgreSQL en Docker
+## Inicio rápido con Aspire
 
-El flujo recomendado para desarrollo mantiene Django en el entorno virtual local y ejecuta únicamente PostgreSQL en Docker.
+El flujo local principal usa Aspire como orquestador. Aspire levanta PostgreSQL, ejecuta migraciones, ejecuta el bootstrap opcional y arranca Django como recursos separados visibles en el dashboard.
+
+Compruebe primero que el intérprete local sea compatible:
+
+```powershell
+python --version
+# Python 3.13.13
+py -3.13 --version
+# Python 3.13.13
+```
+
+Si `py -3.13` resuelve a una versión anterior a `3.13.13`, instale un parche más reciente de CPython 3.13 antes de crear el entorno virtual.
+
+```powershell
+py -3.13 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+Copy-Item .env.example .env
+```
+
+Edite `.env` y asigne valores locales a `DJANGO_SECRET_KEY` y `POSTGRES_PASSWORD`. Aspire lee `.env` y luego `.env.local` sin necesidad de levantar Docker Compose.
+
+Si previamente usó Compose, deténgalo antes de usar Aspire para evitar una base PostgreSQL paralela llamada `eduplain-backend-db-1`:
+
+```powershell
+docker compose down
+```
+
+Luego ejecute Aspire:
+
+```powershell
+dotnet build .\aspire\Eduplain.AppHost\Eduplain.AppHost.csproj
+aspire run --apphost .\aspire\Eduplain.AppHost
+```
+
+Recursos principales en Aspire:
+
+| Recurso | Tipo |
+|---|---|
+| `postgres` | Contenedor PostgreSQL |
+| `academic-db` | Base lógica dentro de `postgres` |
+| `django-migrate` | Job de migraciones |
+| `django-bootstrap` | Job de superusuario opcional |
+| `django-api` | Servicio Django |
+
+`postgres` y `academic-db` no son dos contenedores separados: `academic-db` es la base creada dentro del servidor PostgreSQL de Aspire.
+
+Servicios disponibles:
+
+| Recurso | URL |
+|---|---|
+| Health check | <http://localhost:8000/api/health/> |
+| Usuarios públicos | <http://localhost:8000/api/users/public/> |
+| Swagger UI | <http://localhost:8000/api/docs/> |
+| Esquema OpenAPI | <http://localhost:8000/api/schema/> |
+
+Para ejecutar endpoints protegidos desde Swagger UI, use `Authorize` con autenticación básica HTTP y las credenciales de un usuario activo.
+
+### Superusuario inicial opcional
+
+Para una instalación nueva, configure temporalmente las variables `EDUPLAIN_BOOTSTRAP_ADMIN_*` en `.env`. Aspire ejecuta automáticamente:
+
+```powershell
+python manage.py bootstrap_superuser --skip-if-unconfigured
+```
+
+El comando crea el superusuario definido por `EDUPLAIN_BOOTSTRAP_ADMIN_USERNAME`, `EDUPLAIN_BOOTSTRAP_ADMIN_EMAIL`, `EDUPLAIN_BOOTSTRAP_ADMIN_FULL_NAME`, `EDUPLAIN_BOOTSTRAP_ADMIN_ROLE` y `EDUPLAIN_BOOTSTRAP_ADMIN_PASSWORD`. Si la cuenta ya existe como superusuario, no cambia su contraseña. Acceda al panel en <http://localhost:8000/admin/>.
+
+## Alternativa: Django local y PostgreSQL con Compose
+
+Este flujo queda disponible solo como alternativa cuando no quiera usar Aspire. Mantiene Django en el entorno virtual local y ejecuta únicamente PostgreSQL en Docker.
 
 Compruebe primero que el intérprete local sea compatible:
 
@@ -50,18 +120,7 @@ python manage.py migrate
 python manage.py runserver
 ```
 
-Servicios disponibles:
-
-| Recurso | URL |
-|---|---|
-| Health check | <http://localhost:8000/api/health/> |
-| Usuarios públicos | <http://localhost:8000/api/users/public/> |
-| Swagger UI | <http://localhost:8000/api/docs/> |
-| Esquema OpenAPI | <http://localhost:8000/api/schema/> |
-
-Para ejecutar endpoints protegidos desde Swagger UI, use `Authorize` con autenticación básica HTTP y las credenciales de un usuario activo.
-
-### Superusuario inicial opcional
+### Superusuario inicial manual
 
 Para una instalación nueva, configure temporalmente las variables `EDUPLAIN_BOOTSTRAP_ADMIN_*` en `.env` y ejecute:
 
@@ -110,17 +169,6 @@ docker compose exec api python manage.py shell
 ```
 
 Consulte [docs/environment.md](docs/environment.md) para conocer las variables y [docs/docker.md](docs/docker.md) para administrar los contenedores.
-
-## Orquestación local con Aspire
-
-El repositorio incluye un AppHost de Aspire como alternativa de desarrollo local. Orquesta PostgreSQL, migraciones, bootstrap opcional y `runserver` sin mover lógica fuera de Django.
-
-```powershell
-dotnet build .\aspire\Eduplain.AppHost\Eduplain.AppHost.csproj
-aspire run --apphost .\aspire\Eduplain.AppHost
-```
-
-Aspire usa .NET SDK `10.0.201`, Aspire `13.4.6` y PostgreSQL `17-alpine`. Consulte [docs/aspire.md](docs/aspire.md) para puertos, variables y operación.
 
 ## Arquitectura
 

@@ -11,7 +11,9 @@ PostgreSQL publica el puerto `55432` del host hacia su puerto interno `5432` par
 
 ## Solo PostgreSQL para desarrollo local
 
-Este es el flujo recomendado cuando Django se ejecuta desde `.venv`:
+El flujo local recomendado es Aspire; use Compose solo cuando quiera probar explícitamente este camino alternativo. No ejecute Compose y Aspire al mismo tiempo para el mismo backend, porque Compose levanta `eduplain-backend-db-1` y Aspire levanta su propio PostgreSQL.
+
+Este es el flujo alternativo cuando Django se ejecuta desde `.venv` sin Aspire:
 
 ```powershell
 docker compose up -d db

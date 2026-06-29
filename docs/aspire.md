@@ -1,6 +1,6 @@
 # Aspire
 
-Aspire se usa como orquestador local alternativo a Docker Compose. No contiene lógica de negocio: solo inicia infraestructura y procesos de desarrollo para el backend Django.
+Aspire se usa como orquestador local principal. No contiene lógica de negocio: solo inicia infraestructura y procesos de desarrollo para el backend Django.
 
 ## Versiones fijadas
 
@@ -17,10 +17,12 @@ Aspire se usa como orquestador local alternativo a Docker Compose. No contiene l
 ## Recursos orquestados
 
 - `postgres`: contenedor PostgreSQL con volumen `eduplain-aspire-postgres-data`.
-- `academic-db`: base de datos creada desde `POSTGRES_DB`.
+- `academic-db`: base lógica creada dentro de `postgres` desde `POSTGRES_DB`.
 - `django-migrate`: ejecuta `python manage.py migrate --noinput`.
 - `django-bootstrap`: ejecuta `python manage.py bootstrap_superuser --skip-if-unconfigured`.
 - `django-api`: ejecuta `python manage.py runserver` y expone `/api/health/` como health check.
+
+`postgres` y `academic-db` pueden aparecer como recursos separados en el dashboard, pero no representan dos contenedores ni dos servidores distintos. El único servidor PostgreSQL que Aspire levanta es `postgres`.
 
 Aspire reutiliza `.venv` si existe. Si no encuentra `.venv`, resuelve `python` desde el `PATH`; ese intérprete debe cumplir el guard del proyecto: CPython `3.13.13` o parche posterior de la rama `3.13`.
 
@@ -41,7 +43,15 @@ Por defecto Aspire usa puertos distintos para PostgreSQL y el mismo puerto para 
 | `ASPIRE_DJANGO_PORT` | `8000` | Puerto del `runserver` de Django. |
 | `ASPIRE_POSTGRES_PORT` | `55433` | Puerto local publicado por PostgreSQL de Aspire. |
 
-`ASPIRE_POSTGRES_PORT=55433` evita colisionar con Docker Compose, que publica PostgreSQL en `55432`. Si también tiene el servicio `api` de Compose levantado, deténgalo o cambie `ASPIRE_DJANGO_PORT`.
+`ASPIRE_POSTGRES_PORT=55433` evita colisionar con Docker Compose, que publica PostgreSQL en `55432`. No ejecute Compose y Aspire al mismo tiempo para el mismo backend: Compose crea contenedores `eduplain-backend-api-1` y `eduplain-backend-db-1`, mientras Aspire crea sus propios recursos.
+
+Si previamente levantó Compose, deténgalo sin borrar datos antes de iniciar Aspire:
+
+```powershell
+docker compose down
+```
+
+No use `docker compose down -v` salvo que quiera eliminar también el volumen local de PostgreSQL de Compose.
 
 ## Ejecución
 
@@ -69,6 +79,6 @@ Cuando el dashboard indique que `django-api` está saludable, use los endpoints 
 
 ## Relación con Docker Compose
 
-Docker Compose sigue siendo el flujo documentado para probar el stack contenedorizado completo. Aspire sirve para desarrollo local con observabilidad y orquestación de dependencias, manteniendo Django como proceso local.
+Docker Compose queda como alternativa para probar el stack contenedorizado completo. Aspire es el flujo local recomendado con observabilidad y orquestación de dependencias, manteniendo Django como proceso local.
 
 Use una sola orquestación para la misma dependencia en un puerto determinado. Si Compose ya usa `8000` o `55432`, detenga esos servicios o ajuste los puertos `ASPIRE_*`.
