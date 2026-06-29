@@ -9,11 +9,11 @@ La configuración sigue los principios de Twelve-Factor App: los valores operati
 | `DJANGO_ALLOWED_HOSTS` | Sí | `api.example.edu` | Hosts separados por comas. |
 | `DJANGO_ENVIRONMENT` | Sí | `production` | Nombre informativo del entorno. |
 | `DJANGO_SETTINGS_MODULE` | Sí | `config.settings.production` | Módulo de configuración que carga Django. |
-| `EDUPLAIN_BOOTSTRAP_ADMIN_USERNAME` | No | `eduplain_su_owner` | Usuario técnico que puede crearse con `bootstrap_superuser`. |
-| `EDUPLAIN_BOOTSTRAP_ADMIN_EMAIL` | No | `owner@eduplain.local` | Correo técnico del superusuario bootstrap. |
-| `EDUPLAIN_BOOTSTRAP_ADMIN_FULL_NAME` | No | `Eduplain System Owner` | Nombre visible del superusuario bootstrap. |
-| `EDUPLAIN_BOOTSTRAP_ADMIN_ROLE` | No | `administrator` | Rol de negocio asignado al superusuario bootstrap. |
-| `EDUPLAIN_BOOTSTRAP_ADMIN_PASSWORD` | No | Sin valor | Secreto temporal para crear `eduplain_su_owner`. |
+| `EDUPLAIN_BOOTSTRAP_ADMIN_USERNAME` | No | `eduplain_su_owner` | Usuario técnico que puede crearse con `bootstrap_superuser`; obligatorio si se configura contraseña. |
+| `EDUPLAIN_BOOTSTRAP_ADMIN_EMAIL` | No | `owner@eduplain.local` | Correo técnico del superusuario bootstrap; obligatorio si se configura contraseña. |
+| `EDUPLAIN_BOOTSTRAP_ADMIN_FULL_NAME` | No | `Eduplain System Owner` | Nombre visible del superusuario bootstrap; obligatorio si se configura contraseña. |
+| `EDUPLAIN_BOOTSTRAP_ADMIN_ROLE` | No | `administrator` | Rol de negocio asignado al superusuario bootstrap; obligatorio si se configura contraseña. |
+| `EDUPLAIN_BOOTSTRAP_ADMIN_PASSWORD` | No | Sin valor | Secreto temporal para crear el superusuario bootstrap. |
 | `POSTGRES_DB` | Sí | `academic_db` | Base de datos. |
 | `POSTGRES_USER` | Sí | `academic_user` | Usuario de PostgreSQL. |
 | `POSTGRES_PASSWORD` | Sí | `strong-secret` | Contraseña de PostgreSQL. |
@@ -55,7 +55,7 @@ python manage.py runserver
 
 ## Superusuario inicial
 
-El comando `python manage.py bootstrap_superuser` crea la identidad técnica configurada con `EDUPLAIN_BOOTSTRAP_ADMIN_USERNAME`, `EDUPLAIN_BOOTSTRAP_ADMIN_EMAIL`, `EDUPLAIN_BOOTSTRAP_ADMIN_FULL_NAME`, `EDUPLAIN_BOOTSTRAP_ADMIN_ROLE` y `EDUPLAIN_BOOTSTRAP_ADMIN_PASSWORD`. Es idempotente: si el usuario ya es superusuario, termina correctamente sin cambiar su contraseña. Si existe como usuario normal, se detiene para evitar una elevación de privilegios accidental.
+El comando `python manage.py bootstrap_superuser` crea la identidad técnica configurada con `EDUPLAIN_BOOTSTRAP_ADMIN_USERNAME`, `EDUPLAIN_BOOTSTRAP_ADMIN_EMAIL`, `EDUPLAIN_BOOTSTRAP_ADMIN_FULL_NAME`, `EDUPLAIN_BOOTSTRAP_ADMIN_ROLE` y `EDUPLAIN_BOOTSTRAP_ADMIN_PASSWORD`. No usa defaults internos para la identidad: si la contraseña está configurada, todas las variables de identidad deben existir en `.env`, `.env.local` o el entorno del proceso. Es idempotente: si el usuario ya es superusuario, termina correctamente sin cambiar su contraseña. Si existe como usuario normal, se detiene para evitar una elevación de privilegios accidental.
 
 `EDUPLAIN_BOOTSTRAP_ADMIN_PASSWORD` nunca debe versionarse con un valor real. El valor `CHANGE_ME` se rechaza explícitamente. Los valores de identidad pueden vivir en `.env` local o en el gestor de secretos/configuración de la plataforma.
 

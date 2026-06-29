@@ -12,14 +12,12 @@ BOOTSTRAP_FULL_NAME_ENVIRONMENT_VARIABLE = "EDUPLAIN_BOOTSTRAP_ADMIN_FULL_NAME"
 BOOTSTRAP_ROLE_ENVIRONMENT_VARIABLE = "EDUPLAIN_BOOTSTRAP_ADMIN_ROLE"
 PASSWORD_ENVIRONMENT_VARIABLE = "EDUPLAIN_BOOTSTRAP_ADMIN_PASSWORD"
 
-DEFAULT_BOOTSTRAP_USERNAME = "eduplain_su_owner"
-DEFAULT_BOOTSTRAP_EMAIL = "owner@eduplain.local"
-DEFAULT_BOOTSTRAP_FULL_NAME = "Eduplain System Owner"
-DEFAULT_BOOTSTRAP_ROLE = UserRole.ADMINISTRATOR.value
 
-
-def env_or_default(name: str, default: str) -> str:
-    return os.getenv(name, default).strip() or default
+def required_env(name: str) -> str:
+    value = os.getenv(name, "").strip()
+    if not value:
+        raise CommandError(f"{name} is required to create the superuser.")
+    return value
 
 
 class Command(BaseCommand):
@@ -37,17 +35,25 @@ class Command(BaseCommand):
     @transaction.atomic
     def handle(self, *args, **options) -> None:
         user_model = get_user_model()
-        username = env_or_default(
-            BOOTSTRAP_USERNAME_ENVIRONMENT_VARIABLE,
-            DEFAULT_BOOTSTRAP_USERNAME,
-        )
-        email = env_or_default(BOOTSTRAP_EMAIL_ENVIRONMENT_VARIABLE, DEFAULT_BOOTSTRAP_EMAIL)
-        full_name = env_or_default(
-            BOOTSTRAP_FULL_NAME_ENVIRONMENT_VARIABLE,
-            DEFAULT_BOOTSTRAP_FULL_NAME,
-        )
-        role = env_or_default(BOOTSTRAP_ROLE_ENVIRONMENT_VARIABLE, DEFAULT_BOOTSTRAP_ROLE)
         password = os.getenv(PASSWORD_ENVIRONMENT_VARIABLE, "").strip()
+
+        if not password:
+            if options["skip_if_unconfigured"]:
+                self.stdout.write(
+                    self.style.WARNING(
+                        f"Superuser bootstrap skipped: {PASSWORD_ENVIRONMENT_VARIABLE} "
+                        "is not configured."
+                    )
+                )
+                return
+            raise CommandError(
+                f"{PASSWORD_ENVIRONMENT_VARIABLE} is required to create the superuser."
+            )
+
+        username = required_env(BOOTSTRAP_USERNAME_ENVIRONMENT_VARIABLE)
+        email = required_env(BOOTSTRAP_EMAIL_ENVIRONMENT_VARIABLE)
+        full_name = required_env(BOOTSTRAP_FULL_NAME_ENVIRONMENT_VARIABLE)
+        role = required_env(BOOTSTRAP_ROLE_ENVIRONMENT_VARIABLE)
 
         try:
             UserRole(role)
@@ -64,19 +70,6 @@ class Command(BaseCommand):
                 return
             raise CommandError(
                 f"User '{username}' already exists but is not a superuser; refusing to elevate it."
-            )
-
-        if not password:
-            if options["skip_if_unconfigured"]:
-                self.stdout.write(
-                    self.style.WARNING(
-                        f"Superuser bootstrap skipped: {PASSWORD_ENVIRONMENT_VARIABLE} "
-                        "is not configured."
-                    )
-                )
-                return
-            raise CommandError(
-                f"{PASSWORD_ENVIRONMENT_VARIABLE} is required to create the superuser."
             )
 
         if password == "CHANGE_ME":
