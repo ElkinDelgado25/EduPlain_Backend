@@ -71,6 +71,8 @@ Este último comando elimina el volumen y no debe utilizarse si se necesitan con
 
 El `Dockerfile` usa la imagen oficial `python:3.13.13-slim-bookworm`, instala dependencias fijadas, ejecuta con un usuario sin privilegios y declara Gunicorn como comando predeterminado. Compose reemplaza ese comando por `runserver` para desarrollo y monta el código como volumen.
 
+La imagen define `PIP_ROOT_USER_ACTION=ignore` como decisión explícita: pip se ejecuta como root únicamente durante el build y la imagen final corre con el usuario sin privilegios `django`, por lo que el warning `Running pip as the 'root' user` no aplica a este patrón y se silencia de forma deliberada.
+
 En un despliegue real, no monte el código, ejecute migraciones como una tarea controlada y use el comando Gunicorn de la imagen. Configure además proxy TLS, observabilidad, backups y gestión segura de secretos.
 
 Para Amazon ECR/ECS o App Runner, construya y publique esta imagen en lugar de depender del Python instalado en el host. El tag fija Python 3.13.13 y Debian Bookworm; las actualizaciones de runtime deben realizarse como cambios explícitos, seguidos por una reconstrucción y las validaciones del repositorio.

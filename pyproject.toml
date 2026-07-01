@@ -14,6 +14,9 @@ select = ["E", "F", "I", "UP", "B", "SIM", "DJ"]
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "config.settings.test"
 python_files = ["test_*.py"]
+# cache_dir evita PytestCacheWarning cuando `.pytest_cache/` queda con permisos
+# rotos en Windows; ver la sección de calidad del README.
+cache_dir = ".cache/pytest"
 addopts = "--strict-markers --cov=apps --cov=config --cov-report=term-missing --cov-report=xml --cov-fail-under=85"
 
 [tool.pytest_env]
