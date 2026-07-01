@@ -89,6 +89,8 @@ El comando crea el superusuario definido por `EDUPLAIN_BOOTSTRAP_ADMIN_USERNAME`
 
 Este flujo queda disponible solo como alternativa cuando no quiera usar Aspire. Mantiene Django en el entorno virtual local y ejecuta únicamente PostgreSQL en Docker.
 
+No ejecute Compose y Aspire al mismo tiempo para el mismo backend: cada stack levanta su propio PostgreSQL (`55432` en Compose, `55433` en Aspire) y ambos intentan usar Django en el puerto `8000`. Antes de cambiar de un stack al otro, detenga el que esté activo.
+
 Compruebe primero que el intérprete local sea compatible:
 
 ```powershell
@@ -241,6 +243,11 @@ docker compose config --quiet
 ```
 
 `pytest` genera `coverage.xml`. `sonar-project.properties` configura Python 3.13, fuentes, pruebas, cobertura y exclusiones técnicas como migraciones.
+
+### Notas sobre las validaciones
+
+- `makemigrations --check --dry-run` consulta el historial de migraciones en PostgreSQL. Ejecútelo con la base de datos levantada (Aspire o `docker compose up -d db`); si PostgreSQL no está activo, Django emite un `RuntimeWarning` de conexión aunque el comando termine con `No changes detected`.
+- La caché de pytest se escribe en `.cache/pytest` (configurado en `pyproject.toml`). Esto evita el `PytestCacheWarning: cache could not write path` que aparece en Windows cuando `.pytest_cache/` queda con permisos rotos. Si ese warning reaparece, elimine el directorio de caché afectado y vuelva a ejecutar la suite.
 
 ## Decisiones de seguridad
 

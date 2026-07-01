@@ -1,8 +1,11 @@
 FROM python:3.13.13-slim-bookworm
 
+# PIP_ROOT_USER_ACTION=ignore: decisión explícita; pip corre como root solo
+# durante el build y la imagen final usa el usuario sin privilegios `django`.
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    PIP_NO_CACHE_DIR=1
+    PIP_NO_CACHE_DIR=1 \
+    PIP_ROOT_USER_ACTION=ignore
 
 WORKDIR /app
 
