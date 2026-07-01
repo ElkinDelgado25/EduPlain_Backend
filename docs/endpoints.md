@@ -86,7 +86,7 @@ Respuesta `201 Created`:
   "content_type": "application/pdf",
   "size_bytes": 18420,
   "storage_backend": "local",
-  "storage_key": "pdfs/0b9d3f7a4f2d4fb58d8eec6a0a88b2b5-silabo.pdf",
+  "storage_key": "pdfs/0b9d3f7a4f2d4fb58d8eec6a0a88b2b5.pdf",
   "created_at": "2026-06-23T12:00:00Z"
 }
 ```
@@ -106,7 +106,7 @@ Respuesta `200 OK`:
     "content_type": "application/pdf",
     "size_bytes": 18420,
     "storage_backend": "local",
-    "storage_key": "pdfs/0b9d3f7a4f2d4fb58d8eec6a0a88b2b5-silabo.pdf",
+    "storage_key": "pdfs/0b9d3f7a4f2d4fb58d8eec6a0a88b2b5.pdf",
     "created_at": "2026-06-23T12:00:00Z"
   }
 ]

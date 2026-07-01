@@ -1,5 +1,4 @@
 import json
-import re
 from dataclasses import asdict
 from datetime import UTC, datetime
 from json import JSONDecodeError
@@ -30,13 +29,13 @@ class LocalPdfDocumentStorage:
         content_type: str,
     ) -> StoredPdfDocument:
         document_id = uuid4().hex
-        safe_filename = self._safe_filename(filename)
-        storage_key = f"pdfs/{document_id}-{safe_filename}"
+        storage_key = f"pdfs/{document_id}.pdf"
+        pdf_path = self.pdfs_root / f"{document_id}.pdf"
         created_at = datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
         try:
             self.pdfs_root.mkdir(parents=True, exist_ok=True)
-            (self.root / storage_key).write_bytes(content)
+            pdf_path.write_bytes(content)
             document = StoredPdfDocument(
                 id=document_id,
                 filename=filename,
@@ -80,10 +79,6 @@ class LocalPdfDocumentStorage:
             json.dumps(catalog, ensure_ascii=False, indent=2),
             encoding="utf-8",
         )
-
-    def _safe_filename(self, filename: str) -> str:
-        safe_filename = re.sub(r"[^A-Za-z0-9._-]+", "-", Path(filename).name).strip("-._")
-        return safe_filename or "document.pdf"
 
 
 def get_pdf_document_storage() -> LocalPdfDocumentStorage:

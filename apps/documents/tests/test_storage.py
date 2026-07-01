@@ -43,3 +43,19 @@ def test_local_pdf_document_storage_raises_when_document_is_missing(tmp_path) ->
 
     with pytest.raises(StoredPdfNotFoundError):
         storage.get_pdf("missing")
+
+
+def test_local_pdf_document_storage_does_not_use_upload_filename_in_path(tmp_path) -> None:
+    storage = LocalPdfDocumentStorage(root=tmp_path)
+
+    document = storage.save_pdf(
+        filename="../../../outside.pdf",
+        content=b"pdf-content",
+        content_type="application/pdf",
+    )
+
+    pdf_path = tmp_path / document.storage_key
+    assert pdf_path.is_relative_to(tmp_path / "pdfs")
+    assert pdf_path.read_bytes() == b"pdf-content"
+    assert document.storage_key == f"pdfs/{document.id}.pdf"
+    assert not (tmp_path.parent / "outside.pdf").exists()
