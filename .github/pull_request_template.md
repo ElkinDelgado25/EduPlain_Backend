@@ -4,9 +4,10 @@
 
 Closes #
 
-## Base branch
+## Ramas
 
-Este PR debe apuntar a **`dev`**, no a `main`.
+- **Head:** `dev` (donde se resolvió el issue)
+- **Base:** `main` (destino tras revisión)
 
 ## Checklist
 

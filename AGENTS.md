@@ -38,13 +38,14 @@ Este repositorio prioriza una arquitectura clara y educativa. Todo cambio debe c
 Los issues viven en GitHub (`ElkinDelgado25/EduPlain_Backend`). Los agentes deben leerlos con `gh issue view <N>` antes de implementar.
 
 ```text
-GitHub Issue → rama fix/issue-<N>-<slug> → PR a dev → PR dev → main
+GitHub Issue → commit en dev → PR dev → main → sync dev
 ```
 
-- Crear ramas desde `dev`, no desde `main`.
-- Abrir PRs hacia `dev` con `Closes #N` en el cuerpo.
-- Integrar a `main` solo mediante PR `dev → main` cuando el usuario lo solicite.
-- Convención de ramas: `fix/issue-<N>-<slug>` o `feat/issue-<N>-<slug>`.
+- Rama de trabajo única: **`dev`** (no crear ramas por issue salvo petición explícita).
+- Implementar cada fix directamente en `dev` tras `git pull origin dev`.
+- Abrir PR de revisión **`dev` → `main`**: `gh pr create --base main --head dev --body "Closes #N"`.
+- Referenciar el issue en commit y PR con `Closes #N`.
+- Tras merge a `main`, sincronizar `dev` desde `main`.
 - Plantillas: `.github/ISSUE_TEMPLATE/` y `.github/pull_request_template.md`.
 - Reglas Cursor detalladas: `.cursor/rules/issue-workflow.mdc` y `.cursor/rules/local-dev-ops.mdc`.
 

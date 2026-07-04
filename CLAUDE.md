@@ -12,10 +12,11 @@ Lea [`AGENTS.md`](AGENTS.md) para arquitectura, seguridad, calidad y control de 
 gh issue view <N> --repo ElkinDelgado25/EduPlain_Backend
 git checkout dev
 git pull origin dev
-git checkout -b fix/issue-<N>-<slug-corto>
+# implementar en dev
+# gh pr create --base main --head dev --title "fix: ..." --body "Closes #N"
 ```
 
-Flujo de ramas: **issue → rama → PR a `dev` → PR `dev` → `main`**. No abrir PRs de features directamente contra `main`.
+Flujo de ramas: **issue → commit en `dev` → PR `dev` → `main` → sync `dev`**. No crear ramas auxiliares por issue.
 
 ## Levantar el backend (Aspire)
 
