@@ -24,6 +24,7 @@ La configuración sigue los principios de Twelve-Factor App: los valores operati
 | `DOCUMENT_STORAGE_BACKEND` | Sí | `local` | Backend para guardar PDFs. Actualmente solo `local` está implementado. |
 | `DOCUMENT_STORAGE_ROOT` | No | `media/documents` | Directorio local para PDFs y catálogo JSON cuando el backend es `local`. |
 | `NOSQL_DATABASE_CONNECTION` | No | Sin valor | Cadena de conexión reservada para un backend NoSQL/Mongo futuro. No se usa mientras `DOCUMENT_STORAGE_BACKEND=local`. |
+| `CORS_ALLOWED_ORIGINS` | No (prod: explícito) | `http://localhost:5173,http://127.0.0.1:5173` | Orígenes del frontend permitidos por CORS. En desarrollo habilita Vite; en producción dejar vacío salvo despliegue separado del frontend. |
 
 ## Uso con Docker Compose
 

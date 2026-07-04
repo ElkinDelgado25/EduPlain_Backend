@@ -15,6 +15,39 @@ URLs principales:
 - Health check: `http://localhost:8000/api/health/`
 - Django Admin: `http://localhost:8000/admin/`
 
+## Frontend local
+
+El frontend React (`Eduplain_Frontend`) consume esta API desde Vite en `http://localhost:5173` por defecto.
+
+Flujo recomendado:
+
+```powershell
+# Terminal 1 — backend (Aspire)
+docker compose down
+aspire run --apphost .\aspire\Eduplain.AppHost
+
+# Terminal 2 — frontend (repo Eduplain_Frontend)
+bun install
+bun dev
+```
+
+Configuración esperada:
+
+| Componente | URL / variable |
+|---|---|
+| Backend Django | `http://localhost:8000` |
+| Frontend Vite | `http://localhost:5173` |
+| CORS backend | `CORS_ALLOWED_ORIGINS=http://localhost:5173,http://127.0.0.1:5173` |
+| Auth frontend (solo dev) | `VITE_API_BASIC_USERNAME` / `VITE_API_BASIC_PASSWORD` con las mismas credenciales bootstrap |
+
+Los endpoints protegidos requieren autenticación básica HTTP desde el frontend en desarrollo. No incluya credenciales reales en builds de producción del frontend; OAuth llegará en una fase posterior.
+
+Verificación rápida:
+
+1. `GET http://localhost:8000/api/health/` → `200`
+2. El frontend muestra el backend conectado
+3. Subir un PDF de prueba → Markdown sin error CORS ni `401`
+
 ## Autenticación actual
 
 Mientras no exista Microsoft OAuth, JWT o login propio, los endpoints protegidos usan **autenticación básica HTTP**.
