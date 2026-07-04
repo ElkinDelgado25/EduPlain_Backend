@@ -12,10 +12,11 @@ Lea [`AGENTS.md`](AGENTS.md) para arquitectura, seguridad, calidad y control de 
 gh issue view <N> --repo ElkinDelgado25/EduPlain_Backend
 git checkout dev
 git pull origin dev
-git checkout -b fix/issue-<N>-<slug-corto>
+# implementar en dev
+# gh pr create --base main --head dev --title "fix: ..." --body "Closes #N"
 ```
 
-Flujo de ramas: **issue → rama → PR a `dev` → PR `dev` → `main`**. No abrir PRs de features directamente contra `main`.
+Flujo de ramas: **issue → commit en `dev` → PR `dev` → `main` → sync `dev`**. No crear ramas auxiliares por issue.
 
 ## Levantar el backend (Aspire)
 
@@ -26,6 +27,8 @@ aspire run --apphost .\aspire\Eduplain.AppHost
 ```
 
 Pre-requisitos: `.venv` activo, `.env` con secretos locales. Detalles en [`docs/aspire.md`](docs/aspire.md).
+
+**Dashboard:** `postgres` y `academic-db` son recursos distintos en la UI, pero **un solo servidor PostgreSQL** — `academic-db` es la base lógica dentro del contenedor `postgres`.
 
 ## Validar antes de cerrar
 
@@ -40,7 +43,7 @@ python -m ruff format --check .
 docker compose config --quiet
 ```
 
-PostgreSQL debe estar activo para el check de migraciones. Ejecutar `python -m pytest` solo si el usuario lo pide explícitamente.
+PostgreSQL debe estar activo para `makemigrations --check --dry-run` (Aspire `55433`, Compose `55432`). Sin base levantada, el comando puede emitir `RuntimeWarning` aunque termine con `No changes detected`. Ejecutar `python -m pytest` solo si el usuario lo pide explícitamente.
 
 ## Git
 

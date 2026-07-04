@@ -38,13 +38,14 @@ Este repositorio prioriza una arquitectura clara y educativa. Todo cambio debe c
 Los issues viven en GitHub (`ElkinDelgado25/EduPlain_Backend`). Los agentes deben leerlos con `gh issue view <N>` antes de implementar.
 
 ```text
-GitHub Issue → rama fix/issue-<N>-<slug> → PR a dev → PR dev → main
+GitHub Issue → commit en dev → PR dev → main → sync dev
 ```
 
-- Crear ramas desde `dev`, no desde `main`.
-- Abrir PRs hacia `dev` con `Closes #N` en el cuerpo.
-- Integrar a `main` solo mediante PR `dev → main` cuando el usuario lo solicite.
-- Convención de ramas: `fix/issue-<N>-<slug>` o `feat/issue-<N>-<slug>`.
+- Rama de trabajo única: **`dev`** (no crear ramas por issue salvo petición explícita).
+- Implementar cada fix directamente en `dev` tras `git pull origin dev`.
+- Abrir PR de revisión **`dev` → `main`**: `gh pr create --base main --head dev --body "Closes #N"`.
+- Referenciar el issue en commit y PR con `Closes #N`.
+- Tras merge a `main`, sincronizar `dev` desde `main`.
 - Plantillas: `.github/ISSUE_TEMPLATE/` y `.github/pull_request_template.md`.
 - Reglas Cursor detalladas: `.cursor/rules/issue-workflow.mdc` y `.cursor/rules/local-dev-ops.mdc`.
 
@@ -62,6 +63,10 @@ aspire run --apphost .\aspire\Eduplain.AppHost
 - Aspire reutiliza `.venv` si existe; el intérprete debe ser CPython `3.13.13+`.
 - `config.settings.development` carga `.env` y luego `.env.local` sin reemplazar variables ya definidas en el proceso.
 - Consulte `docs/aspire.md` para recursos orquestados y versiones fijadas.
+
+### Onboarding Aspire (dashboard)
+
+En el dashboard, `postgres` y `academic-db` aparecen como recursos separados. **No son dos servidores PostgreSQL**: `postgres` es el único contenedor; `academic-db` es la base lógica creada dentro de ese servidor. Detalle adicional en [`README.md`](README.md) y [`docs/aspire.md`](docs/aspire.md).
 
 **Alternativa: Django en `.venv` + solo PostgreSQL con Compose** (cuando no se use Aspire):
 
@@ -96,6 +101,8 @@ python -m ruff check .
 python -m ruff format --check .
 docker compose config --quiet
 ```
+
+**Requisito de PostgreSQL:** `makemigrations --check --dry-run` consulta el historial de migraciones en la base de datos. Levante PostgreSQL antes de ejecutarlo (Aspire en `localhost:55433` o Compose en `localhost:55432`). Sin base activa, puede terminar con `No changes detected` pero emitir `RuntimeWarning` de timeout.
 
 No ejecutar `python -m pytest` salvo petición explícita del usuario.
 
