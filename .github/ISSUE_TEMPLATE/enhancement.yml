@@ -1,0 +1,68 @@
+name: Enhancement
+description: Proponer una mejora, feature o tarea de documentación
+title: "[Enhancement]: "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Describa la mejora y los criterios verificables. Los agentes leen este issue con `gh issue view` antes de implementar.
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Resumen
+      description: Qué se quiere lograr y por qué
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Propuesta
+      description: Enfoque sugerido o alcance técnico
+    validations:
+      required: false
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Área afectada
+      options:
+        - apps/health
+        - apps/users
+        - apps/documents
+        - config
+        - aspire
+        - docs
+        - infra / docker
+        - otro
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: acceptance
+    attributes:
+      label: Criterios de aceptación
+      description: Condiciones verificables para dar el issue por resuelto
+      options:
+        - label: La mejora queda implementada según la propuesta acordada
+        - label: Existe prueba automatizada relevante (si aplica)
+        - label: Documentación y OpenAPI actualizados (si aplica)
+        - label: Validaciones del repo pasan (ruff, check, OpenAPI); pytest si el issue lo requiere
+
+  - type: checkboxes
+    id: labels_extra
+    attributes:
+      label: Etiquetas sugeridas
+      options:
+        - label: documentation
+        - label: good first issue
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notas adicionales
+    validations:
+      required: false

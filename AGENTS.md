@@ -33,9 +33,37 @@ Este repositorio prioriza una arquitectura clara y educativa. Todo cambio debe c
 - No versionar `.env`, credenciales reales ni datos personales.
 - Mantener separados los ajustes de desarrollo y producción.
 
-## Flujo de desarrollo local
+## Flujo de issues y ramas
 
-El flujo recomendado ejecuta Django desde `.venv` y únicamente PostgreSQL dentro de Docker. No iniciar el servicio `api` de Compose salvo que se quiera probar deliberadamente el stack completo.
+Los issues viven en GitHub (`ElkinDelgado25/EduPlain_Backend`). Los agentes deben leerlos con `gh issue view <N>` antes de implementar.
+
+```text
+GitHub Issue → rama fix/issue-<N>-<slug> → PR a dev → PR dev → main
+```
+
+- Crear ramas desde `dev`, no desde `main`.
+- Abrir PRs hacia `dev` con `Closes #N` en el cuerpo.
+- Integrar a `main` solo mediante PR `dev → main` cuando el usuario lo solicite.
+- Convención de ramas: `fix/issue-<N>-<slug>` o `feat/issue-<N>-<slug>`.
+- Plantillas: `.github/ISSUE_TEMPLATE/` y `.github/pull_request_template.md`.
+- Reglas Cursor detalladas: `.cursor/rules/issue-workflow.mdc` y `.cursor/rules/local-dev-ops.mdc`.
+
+## Orquestación local
+
+El flujo local principal usa **Aspire**. No ejecutar Compose y Aspire al mismo tiempo.
+
+```powershell
+docker compose down
+dotnet build .\aspire\Eduplain.AppHost\Eduplain.AppHost.csproj
+aspire run --apphost .\aspire\Eduplain.AppHost
+```
+
+- Django expone `http://localhost:8000`; PostgreSQL de Aspire en `localhost:55433`.
+- Aspire reutiliza `.venv` si existe; el intérprete debe ser CPython `3.13.13+`.
+- `config.settings.development` carga `.env` y luego `.env.local` sin reemplazar variables ya definidas en el proceso.
+- Consulte `docs/aspire.md` para recursos orquestados y versiones fijadas.
+
+**Alternativa: Django en `.venv` + solo PostgreSQL con Compose** (cuando no se use Aspire):
 
 ```powershell
 .\.venv\Scripts\Activate.ps1
@@ -44,23 +72,39 @@ python manage.py migrate
 python manage.py runserver
 ```
 
-- PostgreSQL se publica en `localhost:55432` y conserva `5432` dentro de Docker.
-- `config.settings.development` carga `.env` y luego `.env.local` sin reemplazar variables ya definidas en el proceso.
+- PostgreSQL de Compose se publica en `localhost:55432`.
 - Los comandos locales de Django deben ejecutarse con el entorno virtual activo.
-- Para el stack completo, usar `docker compose up --build` y ejecutar comandos Django mediante `docker compose exec api python manage.py <comando>`.
+
+**Stack completo en Docker** (solo cuando la tarea lo pida explícitamente):
+
+```powershell
+docker compose up --build
+docker compose exec api python manage.py <comando>
+```
 
 ## Calidad y entrega
 
-Antes de finalizar un cambio:
+### Checklist del agente
+
+Validaciones automáticas al cerrar una tarea (sin pytest):
 
 ```bash
 python manage.py check
 python manage.py makemigrations --check --dry-run
 python manage.py spectacular --validate --file schema.yml
-python -m pytest
 python -m ruff check .
 python -m ruff format --check .
 docker compose config --quiet
+```
+
+No ejecutar `python -m pytest` salvo petición explícita del usuario.
+
+### Checklist completo de entrega
+
+Para desarrolladores humanos o cuando el usuario pida validación total, añadir:
+
+```bash
+python -m pytest
 ```
 
 Agregar pruebas cuando aparezca lógica condicional o reglas de negocio. Mantener comentarios centrados en el porqué; los nombres deben explicar el qué.
