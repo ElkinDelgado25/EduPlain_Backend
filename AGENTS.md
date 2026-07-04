@@ -64,6 +64,10 @@ aspire run --apphost .\aspire\Eduplain.AppHost
 - `config.settings.development` carga `.env` y luego `.env.local` sin reemplazar variables ya definidas en el proceso.
 - Consulte `docs/aspire.md` para recursos orquestados y versiones fijadas.
 
+### Onboarding Aspire (dashboard)
+
+En el dashboard, `postgres` y `academic-db` aparecen como recursos separados. **No son dos servidores PostgreSQL**: `postgres` es el único contenedor; `academic-db` es la base lógica creada dentro de ese servidor. Detalle adicional en [`README.md`](README.md) y [`docs/aspire.md`](docs/aspire.md).
+
 **Alternativa: Django en `.venv` + solo PostgreSQL con Compose** (cuando no se use Aspire):
 
 ```powershell
@@ -97,6 +101,8 @@ python -m ruff check .
 python -m ruff format --check .
 docker compose config --quiet
 ```
+
+**Requisito de PostgreSQL:** `makemigrations --check --dry-run` consulta el historial de migraciones en la base de datos. Levante PostgreSQL antes de ejecutarlo (Aspire en `localhost:55433` o Compose en `localhost:55432`). Sin base activa, puede terminar con `No changes detected` pero emitir `RuntimeWarning` de timeout.
 
 No ejecutar `python -m pytest` salvo petición explícita del usuario.
 
