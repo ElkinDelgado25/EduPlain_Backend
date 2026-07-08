@@ -38,3 +38,6 @@ media/
 .cursor/
 .DS_Store
 Thumbs.db
+
+#enviorement
+Eduplain_Frontend.code-workspace
