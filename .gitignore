@@ -34,8 +34,10 @@ media/
 
 # Editors and operating systems
 .idea/
-.vscode/
-.cursor/
+.vscode/*
+!.vscode/mcp.json
+.cursor/*
+!.cursor/mcp.json
 .DS_Store
 Thumbs.db
 

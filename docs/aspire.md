@@ -82,3 +82,57 @@ Cuando el dashboard indique que `django-api` está saludable, use los endpoints 
 Docker Compose queda como alternativa para probar el stack contenedorizado completo. Aspire es el flujo local recomendado con observabilidad y orquestación de dependencias, manteniendo Django como proceso local.
 
 Use una sola orquestación para la misma dependencia en un puerto determinado. Si Compose ya usa `8000` o `55432`, detenga esos servicios o ajuste los puertos `ASPIRE_*`.
+
+## Agentes de IA (Cursor, Copilot, Claude)
+
+El repositorio incluye skills de Aspire en `.agents/skills/` y configuración MCP para consultar recursos, logs y traces del AppHost en tiempo de ejecución.
+
+### Instalación inicial
+
+Desde la raíz del repositorio, con Aspire CLI `13.4.6+`:
+
+```powershell
+aspire agent init --non-interactive `
+  --skill-locations standard `
+  --skills aspire,aspire-init,aspire-orchestration,aspire-monitoring,aspire-deployment
+```
+
+No instale `aspireify`: el AppHost de Eduplain ya está cableado en `aspire/Eduplain.AppHost/`.
+
+Skills instalados:
+
+| Skill | Uso en Eduplain |
+|---|---|
+| `aspire` | Router general de tareas Aspire |
+| `aspire-orchestration` | Operar `postgres`, `django-migrate`, `django-api` |
+| `aspire-monitoring` | Logs, traces y diagnóstico del dashboard |
+| `aspire-deployment` | Publicación y CI/CD futuros |
+| `aspire-init` | Referencia para nuevos recursos o proyectos |
+
+### MCP server
+
+Archivos versionados:
+
+| Archivo | Entorno |
+|---|---|
+| `.mcp.json` | Claude Code y otros clientes MCP |
+| `.cursor/mcp.json` | Cursor |
+| `.vscode/mcp.json` | VS Code + GitHub Copilot |
+
+Todos apuntan a `aspire agent mcp` (transporte STDIO, solo local).
+
+Flujo de trabajo:
+
+1. Levante el stack con `aspire run --apphost .\aspire\Eduplain.AppHost`.
+2. Reinicie Cursor (o recargue MCP en **Settings → Tools & MCP**) para que detecte el servidor `aspire`.
+3. Pida al agente tareas como revisar el estado de `django-api`, leer logs de `django-migrate` o reiniciar un recurso.
+
+Prueba manual del servidor MCP:
+
+```powershell
+aspire agent mcp
+```
+
+Si no conecta, verifique que el AppHost esté en ejecución y que `aspire --version` responda `13.4.6` o superior.
+
+Documentación oficial: [Use AI coding agents](https://aspire.dev/get-started/ai-coding-agents/) · [Aspire MCP server](https://aspire.dev/get-started/aspire-mcp-server/).
