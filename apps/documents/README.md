@@ -11,4 +11,4 @@ Capas:
 - `infrastructure`: adaptadores concretos basados en `pymupdf4llm` y storage local.
 - `interfaces`: contrato HTTP para carga de PDF y respuesta Markdown.
 
-El endpoint inicial requiere autenticacion por la politica global del backend. No debe exponerse como publico hasta definir autenticacion institucional y limites operativos.
+El endpoint `POST /api/documents/pdf-to-markdown/` es publico de forma explicita para el laboratorio Syllabus Lab. Los endpoints de almacenamiento de PDFs siguen protegidos por la politica global del backend.

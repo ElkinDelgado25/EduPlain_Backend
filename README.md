@@ -7,7 +7,7 @@ Runtime oficial: **CPython 3.13.13 o un parche posterior de la rama 3.13**. La v
 ## Alcance actual
 
 - Comprobación pública de salud del servicio.
-- Conversión autenticada de PDF a Markdown para validar el procesamiento inicial de sílabos.
+- Conversión pública de PDF a Markdown para el laboratorio Syllabus Lab.
 - Almacenamiento autenticado de PDFs con catálogo local reemplazable por storage externo.
 - Directorio público de usuarios con una salida limitada a `id`, `full_name`, `email` y `role`.
 - Contrato OpenAPI y Swagger UI.

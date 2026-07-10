@@ -50,7 +50,7 @@ Traduce protocolos externos a operaciones de aplicación. En este proyecto conti
 - Se usa un modelo de usuario propio desde la migración inicial para facilitar autenticación futura.
 - El runtime se limita a CPython 3.13.13 o un parche posterior dentro de 3.13; Docker fija exactamente 3.13.13 para builds reproducibles.
 - El email es público porque forma parte del contrato solicitado. `is_public` permite excluir usuarios del directorio.
-- Los permisos globales de DRF son restrictivos. Solo health y el directorio declaran `AllowAny`.
+- Los permisos globales de DRF son restrictivos. Solo health, el directorio y el laboratorio `pdf-to-markdown` declaran `AllowAny`.
 - La inyección de dependencias se realiza manualmente en la vista; todavía no se justifica un contenedor.
 - Health es un chequeo de liveness. No verifica PostgreSQL para no mezclar disponibilidad del proceso con readiness.
 - `apps/users/models.py` es un puente de registro exigido por el autodiscovery de Django; no contiene lógica ni define otro modelo.
