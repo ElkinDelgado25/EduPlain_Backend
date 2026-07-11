@@ -2,6 +2,7 @@ from drf_spectacular.utils import OpenApiResponse, extend_schema
 from rest_framework import serializers, status
 from rest_framework.exceptions import APIException, NotFound, ValidationError
 from rest_framework.parsers import MultiPartParser
+from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -36,6 +37,10 @@ class PdfStorageApiError(APIException):
 
 
 class PdfToMarkdownView(APIView):
+    """Public lab endpoint for Syllabus Lab while institutional auth is not available."""
+
+    authentication_classes: list[type] = []
+    permission_classes = [AllowAny]
     parser_classes = [MultiPartParser]
 
     @extend_schema(

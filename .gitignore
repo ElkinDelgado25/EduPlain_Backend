@@ -1,6 +1,4 @@
 # Environment and secrets
-.env
-.env.local
 docs/credenciales.local.md
 
 # Python

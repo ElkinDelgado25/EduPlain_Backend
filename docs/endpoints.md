@@ -50,7 +50,7 @@ Una instalación nueva devuelve `[]` hasta crear usuarios. Los únicos roles vá
 
 `POST /api/documents/pdf-to-markdown/`
 
-- Autenticación: requerida por la política global del backend.
+- Autenticación: no requerida (laboratorio técnico de Syllabus Lab).
 - Objetivo: convertir un PDF académico en Markdown para validar el procesamiento inicial de sílabos.
 - Formato de envío: `multipart/form-data`.
 - Campo requerido: `file`, con un PDF de hasta 10 MB.
@@ -68,7 +68,6 @@ Respuesta `200 OK`:
 Errores esperados:
 
 - `400 Bad Request` si el archivo no es PDF, supera el tamaño permitido o no puede convertirse.
-- `401 Unauthorized` o `403 Forbidden` si la solicitud no está autenticada.
 
 `POST /api/documents/pdfs/`
 

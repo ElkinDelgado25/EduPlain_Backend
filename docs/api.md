@@ -120,6 +120,7 @@ Estos endpoints no requieren autenticación:
 ```text
 GET /api/health/
 GET /api/users/public/
+POST /api/documents/pdf-to-markdown/
 ```
 
 ## Endpoints protegidos actuales
@@ -127,7 +128,6 @@ GET /api/users/public/
 Estos endpoints requieren autenticación básica:
 
 ```text
-POST /api/documents/pdf-to-markdown/
 POST /api/documents/pdfs/
 GET /api/documents/pdfs/
 GET /api/documents/pdfs/{id}/
