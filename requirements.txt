@@ -6,3 +6,4 @@ psycopg[binary]==3.2.13
 gunicorn==23.0.0
 python-dotenv==1.2.2
 pymupdf4llm==1.27.2.3
+openai==2.44.0

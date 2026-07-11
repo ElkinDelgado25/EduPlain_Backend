@@ -25,6 +25,10 @@ La configuración sigue los principios de Twelve-Factor App: los valores operati
 | `DOCUMENT_STORAGE_ROOT` | No | `media/documents` | Directorio local para PDFs y catálogo JSON cuando el backend es `local`. |
 | `NOSQL_DATABASE_CONNECTION` | No | Sin valor | Cadena de conexión reservada para un backend NoSQL/Mongo futuro. No se usa mientras `DOCUMENT_STORAGE_BACKEND=local`. |
 | `CORS_ALLOWED_ORIGINS` | No (prod: explícito) | `http://localhost:5173,http://127.0.0.1:5173` | Orígenes del frontend permitidos por CORS. En desarrollo habilita Vite; en producción dejar vacío salvo despliegue separado del frontend. |
+| `AI_SYLLABUS_ENABLED` | No | `false` | Activa el analizador de sílabos con OpenAI. Si es `false` o falta la API key, el backend responde con el placeholder genérico de fase 1. |
+| `OPENAI_API_KEY` | No | Sin valor | Clave secreta de OpenAI. Debe vivir en `.env.local` o en el gestor de secretos del entorno. Nunca versionar un valor real. |
+| `AI_SYLLABUS_MODEL` | No | `gpt-4o-mini` | Modelo de chat usado para analizar sílabos. |
+| `AI_SYLLABUS_MAX_INPUT_CHARS` | No | `24000` | Máximo de caracteres del Markdown enviados al modelo por solicitud. |
 
 ## Uso con Docker Compose
 
@@ -59,6 +63,28 @@ python manage.py runserver
 ## Uso con Aspire
 
 El AppHost de Aspire lee `.env` y `.env.local`, crea PostgreSQL con `POSTGRES_DB`, `POSTGRES_USER` y `POSTGRES_PASSWORD`, y sobrescribe `POSTGRES_HOST`/`POSTGRES_PORT` en los procesos Django que orquesta. Por defecto Django usa `ASPIRE_DJANGO_PORT=8000` y PostgreSQL usa `ASPIRE_POSTGRES_PORT=55433` para no colisionar con el puerto `55432` de Docker Compose. Consulte `docs/aspire.md` para el flujo completo.
+
+## Análisis de sílabos con IA
+
+Para activar el analizador con OpenAI en local:
+
+1. Copie `.env.local.example` a `.env.local` si aún no existe.
+2. Configure:
+
+```env
+AI_SYLLABUS_ENABLED=true
+OPENAI_API_KEY=sk-su-clave-real
+AI_SYLLABUS_MODEL=gpt-4o-mini
+```
+
+3. Reinicie Django o Aspire para recargar variables.
+
+Reglas operativas:
+
+- `.env.example` documenta valores seguros por defecto (`AI_SYLLABUS_ENABLED=false`).
+- `.env.local` es el lugar recomendado para la clave real en desarrollo.
+- Si `AI_SYLLABUS_ENABLED=false` o `OPENAI_API_KEY` está vacío, `POST /api/ai/syllabus/analyze/` sigue funcionando pero responde con el placeholder genérico (`version=generic-v1`, `confidence=generic`).
+- Con IA activa, la respuesta incluye `version=ai-v1` y `confidence=ai`.
 
 ## Superusuario inicial
 

@@ -1,0 +1,406 @@
+openapi: 3.0.3
+info:
+  title: Eduplain Backend API
+  version: 1.0.0
+  description: API base de Eduplain para la plataforma académica universitaria.
+paths:
+  /api/ai/syllabus/analyze/:
+    post:
+      operationId: api_ai_syllabus_analyze_create
+      description: Receives a syllabus PDF, extracts its text as Markdown and returns
+        an analysis. When AI_SYLLABUS_ENABLED is true and OPENAI_API_KEY is configured,
+        the response is generated with OpenAI. Otherwise a generic phase-1 placeholder
+        is returned.
+      summary: Analyze an academic syllabus PDF
+      tags:
+      - AI Agents
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SyllabusAnalyzeInput'
+        required: true
+      security:
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SyllabusAnalysisResultOutput'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SyllabusAnalysisError'
+          description: The uploaded PDF is invalid or could not be analyzed.
+  /api/documents/pdf-to-markdown/:
+    post:
+      operationId: api_documents_pdf_to_markdown_create
+      summary: Convert a PDF document to Markdown
+      tags:
+      - Documents
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PdfToMarkdownInput'
+        required: true
+      security:
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PdfToMarkdownOutput'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PdfConversionError'
+          description: The uploaded PDF is invalid or could not be converted.
+  /api/documents/pdfs/:
+    get:
+      operationId: api_documents_pdfs_list
+      summary: List stored PDF documents
+      tags:
+      - Documents
+      security:
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StoredPdfOutput'
+          description: ''
+    post:
+      operationId: api_documents_pdfs_create
+      summary: Store a PDF document
+      tags:
+      - Documents
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/StoredPdfInput'
+        required: true
+      security:
+      - basicAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StoredPdfOutput'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PdfConversionError'
+          description: The uploaded PDF is invalid or could not be stored.
+  /api/documents/pdfs/{document_id}/:
+    get:
+      operationId: api_documents_pdfs_retrieve
+      summary: Get stored PDF document metadata
+      parameters:
+      - in: path
+        name: document_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Documents
+      security:
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StoredPdfOutput'
+          description: ''
+        '404':
+          description: Not found
+  /api/health/:
+    get:
+      operationId: api_health_retrieve
+      description: Public HTTP adapter used by people and infrastructure probes.
+      summary: Check service health
+      tags:
+      - Health
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+              examples:
+                HealthyService:
+                  value:
+                    status: ok
+                    service: eduplain-backend
+                    environment: development
+                  summary: Healthy service
+          description: ''
+  /api/users/public/:
+    get:
+      operationId: api_users_public_list
+      description: Public REST adapter. Authentication is intentionally disabled for
+        now.
+      summary: List public users
+      tags:
+      - Users
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PublicUser'
+          description: ''
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        service:
+          type: string
+        environment:
+          type: string
+      required:
+      - environment
+      - service
+      - status
+    PdfConversionError:
+      type: object
+      properties:
+        file:
+          type: array
+          items:
+            type: string
+      required:
+      - file
+    PdfToMarkdownInput:
+      type: object
+      properties:
+        file:
+          type: string
+          format: uri
+      required:
+      - file
+    PdfToMarkdownOutput:
+      type: object
+      properties:
+        filename:
+          type: string
+          readOnly: true
+        characters:
+          type: integer
+          readOnly: true
+        markdown:
+          type: string
+          readOnly: true
+      required:
+      - characters
+      - filename
+      - markdown
+    PublicUser:
+      type: object
+      description: Explicit output contract; no persistence-only field can be exposed.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        full_name:
+          type: string
+          readOnly: true
+        email:
+          type: string
+          format: email
+          readOnly: true
+        role:
+          type: string
+          readOnly: true
+      required:
+      - email
+      - full_name
+      - id
+      - role
+    StoredPdfInput:
+      type: object
+      properties:
+        file:
+          type: string
+          format: uri
+      required:
+      - file
+    StoredPdfOutput:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        filename:
+          type: string
+          readOnly: true
+        content_type:
+          type: string
+          readOnly: true
+        size_bytes:
+          type: integer
+          readOnly: true
+        storage_backend:
+          type: string
+          readOnly: true
+        storage_key:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          readOnly: true
+      required:
+      - content_type
+      - created_at
+      - filename
+      - id
+      - size_bytes
+      - storage_backend
+      - storage_key
+    SyllabusAnalysisDraftOutput:
+      type: object
+      properties:
+        course_name:
+          type: string
+          readOnly: true
+          nullable: true
+        general_objective:
+          type: string
+          readOnly: true
+          nullable: true
+        units:
+          type: array
+          items:
+            $ref: '#/components/schemas/SyllabusUnitDraftOutput'
+          readOnly: true
+        confidence:
+          type: string
+          readOnly: true
+        notes:
+          type: string
+          readOnly: true
+      required:
+      - confidence
+      - course_name
+      - general_objective
+      - notes
+      - units
+    SyllabusAnalysisError:
+      type: object
+      properties:
+        file:
+          type: array
+          items:
+            type: string
+      required:
+      - file
+    SyllabusAnalysisResultOutput:
+      type: object
+      properties:
+        status:
+          type: string
+          readOnly: true
+        filename:
+          type: string
+          readOnly: true
+        characters_extracted:
+          type: integer
+          readOnly: true
+        markdown_preview:
+          type: string
+          readOnly: true
+        analysis:
+          allOf:
+          - $ref: '#/components/schemas/SyllabusAnalysisDraftOutput'
+          readOnly: true
+        phase:
+          type: integer
+          readOnly: true
+        agent:
+          type: string
+          readOnly: true
+        version:
+          type: string
+          readOnly: true
+        steps_completed:
+          type: array
+          items:
+            type: string
+          readOnly: true
+      required:
+      - agent
+      - analysis
+      - characters_extracted
+      - filename
+      - markdown_preview
+      - phase
+      - status
+      - steps_completed
+      - version
+    SyllabusAnalyzeInput:
+      type: object
+      properties:
+        file:
+          type: string
+          format: uri
+      required:
+      - file
+    SyllabusTopicDraftOutput:
+      type: object
+      properties:
+        title:
+          type: string
+          readOnly: true
+        subtopics:
+          type: array
+          items:
+            type: string
+          readOnly: true
+      required:
+      - subtopics
+      - title
+    SyllabusUnitDraftOutput:
+      type: object
+      properties:
+        number:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          readOnly: true
+        topics:
+          type: array
+          items:
+            $ref: '#/components/schemas/SyllabusTopicDraftOutput'
+          readOnly: true
+      required:
+      - number
+      - title
+      - topics
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic

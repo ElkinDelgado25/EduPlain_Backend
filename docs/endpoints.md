@@ -123,6 +123,47 @@ Errores esperados:
 - `404 Not Found` si el identificador no existe.
 - `500 Internal Server Error` si el backend de storage no está disponible o no está implementado.
 
+## Agentes de IA
+
+`POST /api/ai/syllabus/analyze/`
+
+- Autenticación: requerida por la política global del backend.
+- Objetivo: recibir un sílabo en PDF, extraer su contenido y devolver un análisis.
+- Modo IA: requiere `AI_SYLLABUS_ENABLED=true` y `OPENAI_API_KEY` configurada. Si no, responde con placeholder genérico de fase 1.
+- Formato de envío: `multipart/form-data`.
+- Campo requerido: `file`, con un PDF de hasta 10 MB.
+
+Respuesta `200 OK`:
+
+```json
+{
+  "status": "completed",
+  "filename": "silabo.pdf",
+  "characters_extracted": 18420,
+  "markdown_preview": "# Unidad 1\n\nContenido extraído...",
+  "analysis": {
+    "course_name": null,
+    "general_objective": "Recibimos tu sílabo y extrajimos su contenido correctamente...",
+    "units": [],
+    "confidence": "ai",
+    "notes": "Análisis inicial del sílabo."
+  },
+  "phase": 1,
+  "agent": "syllabus-analyzer",
+  "version": "ai-v1",
+  "steps_completed": [
+    "pdf_received",
+    "markdown_extracted",
+    "analysis_generated"
+  ]
+}
+```
+
+Errores esperados:
+
+- `400 Bad Request` si el archivo no es PDF, supera el tamaño permitido o no puede convertirse.
+- `401 Unauthorized` o `403 Forbidden` si la solicitud no está autenticada.
+
 ## OpenAPI
 
 | Método | Ruta | Descripción |

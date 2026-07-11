@@ -27,6 +27,21 @@ def env_list(name: str, default: str = "") -> list[str]:
     return [item.strip() for item in env(name, default).split(",") if item.strip()]
 
 
+def env_optional(name: str, default: str = "") -> str:
+    value = os.getenv(name)
+    if value is None:
+        return default
+    return value
+
+
+def env_int(name: str, default: int) -> int:
+    raw_value = env_optional(name, str(default))
+    try:
+        return int(raw_value)
+    except ValueError as exc:
+        raise RuntimeError(f"{name} must be an integer value.") from exc
+
+
 SECRET_KEY = env("DJANGO_SECRET_KEY")
 DEBUG = env_bool("DJANGO_DEBUG", False)
 ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1")
@@ -42,6 +57,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "rest_framework",
     "drf_spectacular",
+    "apps.ai_agents.apps.AiAgentsConfig",
     "apps.documents.apps.DocumentsConfig",
     "apps.health.apps.HealthConfig",
     "apps.users.apps.UsersConfig",
@@ -114,6 +130,11 @@ DOCUMENT_STORAGE_ROOT = (
     else BASE_DIR / _document_storage_root
 )
 NOSQL_DATABASE_CONNECTION = env("NOSQL_DATABASE_CONNECTION", "")
+
+AI_SYLLABUS_ENABLED = env_bool("AI_SYLLABUS_ENABLED", False)
+OPENAI_API_KEY = env_optional("OPENAI_API_KEY", "")
+AI_SYLLABUS_MODEL = env_optional("AI_SYLLABUS_MODEL", "gpt-4o-mini")
+AI_SYLLABUS_MAX_INPUT_CHARS = env_int("AI_SYLLABUS_MAX_INPUT_CHARS", 24000)
 
 REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",

@@ -4,6 +4,7 @@
 
 Los módulos actuales son:
 
+- `ai_agents`: agente académico de fase 1 para analizar sílabos PDF.
 - `documents`: procesamiento documental para convertir PDFs académicos en Markdown.
 - `health`: estado operativo del servicio.
 - `users`: directorio académico y base para identidad futura.

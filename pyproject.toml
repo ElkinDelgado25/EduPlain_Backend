@@ -22,6 +22,8 @@ addopts = "--strict-markers --cov=apps --cov=config --cov-report=term-missing --
 [tool.pytest_env]
 DJANGO_SECRET_KEY = "test-only-key-not-used-outside-pytest"
 POSTGRES_PASSWORD = "test-only-database-password"
+AI_SYLLABUS_ENABLED = "false"
+OPENAI_API_KEY = ""
 
 [tool.coverage.run]
 branch = true
