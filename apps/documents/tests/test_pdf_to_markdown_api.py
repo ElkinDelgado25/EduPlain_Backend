@@ -5,6 +5,7 @@ from rest_framework import status
 from rest_framework.test import APIClient
 
 from apps.documents.domain.entities import MarkdownDocument
+from apps.documents.interfaces.serializers import MAX_PDF_UPLOAD_SIZE_BYTES
 
 
 class FakeMarkdownConverter:
@@ -50,3 +51,21 @@ def test_pdf_to_markdown_rejects_non_pdf_files() -> None:
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert response.json() == {"file": ["Only PDF files are supported."]}
+
+
+@pytest.mark.django_db
+def test_pdf_to_markdown_rejects_pdf_over_size_limit() -> None:
+    uploaded_file = SimpleUploadedFile(
+        "silabo.pdf",
+        b"x" * (MAX_PDF_UPLOAD_SIZE_BYTES + 1),
+        content_type="application/pdf",
+    )
+
+    response = APIClient().post(
+        reverse("documents:pdf-to-markdown"),
+        {"file": uploaded_file},
+        format="multipart",
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json() == {"file": ["PDF files must be 10 MB or smaller."]}

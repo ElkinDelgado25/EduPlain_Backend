@@ -10,6 +10,7 @@ from apps.ai_agents.infrastructure.generic_syllabus_analyzer import (
     GENERIC_NOTES,
     GENERIC_OBJECTIVE,
 )
+from apps.ai_agents.interfaces.serializers import MAX_PDF_UPLOAD_SIZE_BYTES
 from apps.documents.domain.entities import MarkdownDocument
 
 
@@ -96,3 +97,29 @@ def test_syllabus_analyze_rejects_non_pdf_files() -> None:
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert response.json() == {"file": ["Only PDF files are supported."]}
+
+
+@pytest.mark.django_db
+def test_syllabus_analyze_rejects_pdf_over_size_limit() -> None:
+    user = get_user_model().objects.create_user(
+        username="docente",
+        email="docente@example.edu",
+        password="local-test-password",
+        full_name="Docente Test",
+    )
+    client = APIClient()
+    client.force_authenticate(user=user)
+    uploaded_file = SimpleUploadedFile(
+        "silabo.pdf",
+        b"x" * (MAX_PDF_UPLOAD_SIZE_BYTES + 1),
+        content_type="application/pdf",
+    )
+
+    response = client.post(
+        reverse("ai_agents:syllabus-analyze"),
+        {"file": uploaded_file},
+        format="multipart",
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json() == {"file": ["PDF files must be 10 MB or smaller."]}

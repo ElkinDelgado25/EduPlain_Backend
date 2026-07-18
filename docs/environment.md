@@ -73,7 +73,7 @@ Para activar el analizador con OpenAI en local:
 
 ```env
 AI_SYLLABUS_ENABLED=true
-OPENAI_API_KEY=sk-su-clave-real
+OPENAI_API_KEY=replace-with-your-local-openai-api-key
 AI_SYLLABUS_MODEL=gpt-4o-mini
 ```
 

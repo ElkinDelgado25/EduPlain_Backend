@@ -236,10 +236,15 @@ Antes de finalizar un cambio, ejecute las validaciones del proyecto:
 python manage.py check
 python manage.py makemigrations --check --dry-run
 python manage.py spectacular --validate --file schema.yml
-python -m pytest
 python -m ruff check .
 python -m ruff format --check .
 docker compose config --quiet
+```
+
+Para una validación completa o cambios con reglas de negocio, ejecute además:
+
+```powershell
+python -m pytest
 ```
 
 `pytest` genera `coverage.xml`. `sonar-project.properties` configura Python 3.13, fuentes, pruebas, cobertura y exclusiones técnicas como migraciones.

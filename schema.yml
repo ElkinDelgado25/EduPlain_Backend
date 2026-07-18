@@ -38,6 +38,8 @@ paths:
   /api/documents/pdf-to-markdown/:
     post:
       operationId: api_documents_pdf_to_markdown_create
+      description: Public lab endpoint for Syllabus Lab while institutional auth is
+        not available.
       summary: Convert a PDF document to Markdown
       tags:
       - Documents
@@ -48,7 +50,7 @@ paths:
               $ref: '#/components/schemas/PdfToMarkdownInput'
         required: true
       security:
-      - basicAuth: []
+      - {}
       responses:
         '200':
           content:
